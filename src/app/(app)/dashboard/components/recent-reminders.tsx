@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import type { Reminder } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
@@ -33,7 +33,6 @@ const ReminderItem = ({ reminder }: { reminder: Reminder }) => {
   return (
     <div className="flex flex-wrap items-center gap-4">
       <Avatar className="h-9 w-9">
-        <AvatarImage src={reminder.contact.avatarUrl} alt="Avatar" />
         <AvatarFallback>{getInitials(reminder.contact.name)}</AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">

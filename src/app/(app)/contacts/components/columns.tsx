@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,7 +29,6 @@ export const columns: ColumnDef<Contact>[] = [
       return (
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={contact.avatarUrl} alt={contact.name} />
             <AvatarFallback>{getInitials(contact.name)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">

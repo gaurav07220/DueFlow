@@ -1,5 +1,5 @@
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,6 @@ export default function ProfilePage() {
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} />
               <AvatarFallback>{getInitials(mockUser.name)}</AvatarFallback>
             </Avatar>
             <div className='flex-1 min-w-[200px]'>
