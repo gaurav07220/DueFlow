@@ -7,6 +7,9 @@ import { Package, Menu } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -59,15 +62,22 @@ export function AppHeader() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
-          <nav className="grid gap-6 text-lg font-medium">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-lg font-semibold"
-              onClick={() => setOpen(false)}
-            >
-              <Package className="h-6 w-6 text-primary" />
-              <span className="font-headline text-xl font-bold">FollowPilot</span>
-            </Link>
+           <SheetHeader>
+            <SheetTitle>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 text-lg font-semibold"
+                onClick={() => setOpen(false)}
+              >
+                <Package className="h-6 w-6 text-primary" />
+                <span className="font-headline text-xl font-bold">FollowPilot</span>
+              </Link>
+            </SheetTitle>
+            <SheetDescription>
+              Navigate through your FollowPilot dashboard.
+            </SheetDescription>
+          </SheetHeader>
+          <nav className="grid gap-6 text-lg font-medium mt-6">
             {navItems.filter(item => !item.hidden).map((item) => (
               <Link
                 key={item.href}

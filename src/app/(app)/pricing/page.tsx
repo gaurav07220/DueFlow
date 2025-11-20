@@ -47,11 +47,12 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full" variant={selectedPlan === plan.name ? 'default' : 'outline'}>
-                <Link href={`/checkout?plan=${plan.name}`}>
-                  {plan.name === 'Free' ? 'Get Started' : `Upgrade to ${plan.name}`}
-                </Link>
-              </Button>
+            <Button asChild className="w-full" variant={selectedPlan === plan.name ? 'default' : 'outline'}>
+  <Link href={`/checkout?plan=${plan.name}`}>
+    <span>{plan.name === 'Free' ? 'Get Started' : `Upgrade to ${plan.name}`}</span>
+  </Link>
+</Button>
+
             </CardFooter>
           </Card>
         ))}
