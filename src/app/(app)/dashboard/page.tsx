@@ -55,12 +55,13 @@ export default function DashboardPage() {
   ];
 
   if(reminders) {
-    for (const reminder of reminders) {
-        if (reminder.scheduledAt) {
-            const month = new Date(reminder.scheduledAt).getMonth();
-            remindersChartData[month].total++;
-        }
-    }
+    reminders.forEach(reminder => {
+      if (reminder.scheduledAt) {
+        const date = 'seconds' in reminder.scheduledAt ? new Date(reminder.scheduledAt.seconds * 1000) : new Date(reminder.scheduledAt);
+        const month = date.getMonth();
+        remindersChartData[month].total++;
+      }
+    });
   }
 
 
