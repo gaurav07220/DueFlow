@@ -27,8 +27,6 @@ export function RemindersChart({ data }: RemindersChartProps) {
           accessibilityLayer 
           data={data}
           margin={{
-            left: 12,
-            right: 12,
             top: 10,
             bottom: 10,
           }}
