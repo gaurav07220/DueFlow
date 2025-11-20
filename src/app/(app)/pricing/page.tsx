@@ -1,12 +1,11 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { subscriptionPlans } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import React from 'react';
-import Link from 'next/link';
+import { PricingButton } from './components/pricing-button';
 
 export default function PricingPage() {
   const [selectedPlan, setSelectedPlan] = React.useState('Growth');
@@ -47,11 +46,10 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full" variant={selectedPlan === plan.name ? 'default' : 'outline'}>
-                <Link href={`/checkout?plan=${plan.name}`}>
-                  {plan.name === 'Free' ? 'Get Started' : `Upgrade to ${plan.name}`}
-                </Link>
-              </Button>
+               <PricingButton
+                  planName={plan.name}
+                  isSelected={selectedPlan === plan.name}
+                />
             </CardFooter>
           </Card>
         ))}
