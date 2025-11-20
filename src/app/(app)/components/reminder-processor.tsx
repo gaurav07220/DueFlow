@@ -57,26 +57,36 @@ export function ReminderProcessor() {
           const scheduledAt = new Date(reminder.scheduledAt);
 
           if (scheduledAt <= now) {
-            console.log(`Processing reminder: ${document.id}`);
+            console.log(`Processing reminder: ${document.id} for channel ${reminder.channel}`);
             const contact = contactsMap.get(reminder.contactId);
             
             if (contact) {
-              // Create a mail document in the 'mail' collection
-              // This is the pattern used by the "Trigger Email" Firebase Extension
-              await addDoc(mailCollection, {
-                to: [contact.email],
-                message: {
-                  subject: `A reminder for ${contact.name}`,
-                  html: `Hi ${contact.name},<br><br>This is a reminder about the following: <br><br><i>${reminder.message}</i>`,
-                },
-              });
-
               const reminderRef = doc(firestore, 'reminders', document.id);
+
+              if (reminder.channel === 'Email') {
+                // Create a mail document in the 'mail' collection for the "Trigger Email" Firebase Extension
+                await addDoc(mailCollection, {
+                  to: [contact.email],
+                  message: {
+                    subject: `A reminder for ${contact.name}`,
+                    html: `Hi ${contact.name},<br><br>This is a reminder about the following: <br><br><i>${reminder.message}</i>`,
+                  },
+                });
+                console.log(`Email request created for ${contact.email}`);
+              } else if (reminder.channel === 'SMS' || reminder.channel === 'WhatsApp') {
+                // SIMULATE sending SMS or WhatsApp. In a real app, this would be a call to a backend function.
+                console.log('--- SIMULATING MESSAGE SEND ---');
+                console.log(`Channel: ${reminder.channel}`);
+                console.log(`To: ${contact.name} (${contact.phone})`);
+                console.log(`Message: "${reminder.message}"`);
+                console.log('-----------------------------');
+              }
+              
               batch.update(reminderRef, { status: 'sent' });
               overdueCount++;
 
             } else {
-              console.warn(`Contact not found for reminder ${document.id}. Cannot send email.`);
+              console.warn(`Contact not found for reminder ${document.id}. Cannot process.`);
               const reminderRef = doc(firestore, 'reminders', document.id);
               batch.update(reminderRef, { status: 'failed' });
             }
