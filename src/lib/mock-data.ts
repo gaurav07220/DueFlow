@@ -67,7 +67,7 @@ export const mockReminders: Reminder[] = [
     contact: { id: 'contact-01', name: 'John Smith', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026701d' },
     channel: 'Email',
     message: 'Just following up on our last conversation. Let me know if you have any questions.',
-    scheduledAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+    scheduledAt: new Date('2025-11-22T16:00:00Z'),
     status: 'pending',
   },
   {
@@ -75,7 +75,7 @@ export const mockReminders: Reminder[] = [
     contact: { id: 'contact-02', name: 'Jane Doe', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026702d' },
     channel: 'SMS',
     message: 'Hi Jane, hope you are having a great week!',
-    scheduledAt: new Date(new Date().getTime() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
+    scheduledAt: new Date('2025-11-21T10:30:00Z'),
     status: 'pending',
   },
   {
@@ -83,7 +83,7 @@ export const mockReminders: Reminder[] = [
     contact: { id: 'contact-04', name: 'Mary Johnson', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
     channel: 'WhatsApp',
     message: 'Quick check-in about the proposal we discussed.',
-    scheduledAt: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    scheduledAt: new Date('2024-07-19T12:00:00Z'),
     status: 'sent',
   },
 ];
@@ -94,7 +94,7 @@ export const mockHistory: HistoryLog[] = [
         reminderId: 'rem-03',
         contactName: 'Mary Johnson',
         channel: 'WhatsApp',
-        sentAt: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000),
+        sentAt: new Date('2024-07-19T12:00:00Z'),
         status: 'seen',
         details: 'Message delivered and seen by contact.',
     },
@@ -103,7 +103,7 @@ export const mockHistory: HistoryLog[] = [
         reminderId: 'rem-prev-01',
         contactName: 'John Smith',
         channel: 'Email',
-        sentAt: new Date(new Date().getTime() - 5 * 24 * 60 * 60 * 1000),
+        sentAt: new Date('2024-07-15T18:00:00Z'),
         status: 'replied',
         details: 'Contact replied to the email.',
     },
@@ -112,7 +112,7 @@ export const mockHistory: HistoryLog[] = [
         reminderId: 'rem-prev-02',
         contactName: 'Peter Jones',
         channel: 'SMS',
-        sentAt: new Date(new Date().getTime() - 10 * 24 * 60 * 60 * 1000),
+        sentAt: new Date('2024-07-10T14:00:00Z'),
         status: 'failed',
         details: 'SMS delivery failed. Invalid phone number.',
     },
@@ -121,7 +121,7 @@ export const mockHistory: HistoryLog[] = [
         reminderId: 'rem-prev-03',
         contactName: 'Jane Doe',
         channel: 'Email',
-        sentAt: new Date(new Date().getTime() - 2 * 24 * 60 * 60 * 1000),
+        sentAt: new Date('2024-07-18T11:00:00Z'),
         status: 'delivered',
         details: 'Email delivered successfully.',
     }
@@ -135,18 +135,18 @@ export const dashboardStats = {
 };
 
 export const remindersChartData = [
-  { name: 'Jan', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Feb', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Mar', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Apr', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'May', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Jun', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Jul', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Aug', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Sep', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Oct', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Nov', total: Math.floor(Math.random() * 500) + 100 },
-  { name: 'Dec', total: Math.floor(Math.random() * 500) + 100 },
+  { name: 'Jan', total: 420 },
+  { name: 'Feb', total: 380 },
+  { name: 'Mar', total: 550 },
+  { name: 'Apr', total: 490 },
+  { name: 'May', total: 620 },
+  { name: 'Jun', total: 580 },
+  { name: 'Jul', total: 670 },
+  { name: 'Aug', total: 640 },
+  { name: 'Sep', total: 710 },
+  { name: 'Oct', total: 750 },
+  { name: 'Nov', total: 720 },
+  { name: 'Dec', total: 800 },
 ];
 
 export const subscriptionPlans: SubscriptionPlan[] = [
