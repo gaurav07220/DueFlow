@@ -120,6 +120,8 @@ export const columns: ColumnDef<Reminder>[] = [
     cell: ({ row }) => {
       const reminder = row.original;
       const { toast } = useToast();
+      const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+
 
       function handleMarkAsPaid() {
         console.log('Marking reminder as paid:', reminder.id);
@@ -145,33 +147,31 @@ export const columns: ColumnDef<Reminder>[] = [
               <DropdownMenuItem asChild>
                 <ViewReminderDialog reminder={reminder}>
                    <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                    <Eye />
+                    <Eye className="mr-2 h-4 w-4"/>
                     <span>View details</span>
                    </button>
                 </ViewReminderDialog>
               </DropdownMenuItem>
               {(reminder.status === 'pending' || reminder.status === 'sent') && (
                 <DropdownMenuItem onClick={handleMarkAsPaid}>
-                  <CheckCircle />
+                  <CheckCircle className="mr-2 h-4 w-4"/>
                   <span>Mark as paid</span>
                 </DropdownMenuItem>
               )}
               {reminder.status === 'pending' && (
-                <DropdownMenuItem asChild>
-                  <ScheduleReminderDialog reminder={reminder} mode='edit'>
-                    <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                      <Edit />
+                 <ScheduleReminderDialog reminder={reminder} mode='edit' open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Edit className="mr-2 h-4 w-4" />
                       <span>Edit reminder</span>
-                    </button>
-                  </ScheduleReminderDialog>
-                </DropdownMenuItem>
+                    </DropdownMenuItem>
+                 </ScheduleReminderDialog>
               )}
               <DropdownMenuSeparator />
               {reminder.status === 'pending' && (
                 <DropdownMenuItem asChild>
                   <CancelReminderDialog reminderId={reminder.id}>
                       <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-destructive/10 focus:text-destructive data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                          <Trash />
+                          <Trash className="mr-2 h-4 w-4" />
                           <span>Cancel reminder</span>
                       </button>
                   </CancelReminderDialog>

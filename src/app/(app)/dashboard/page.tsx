@@ -93,7 +93,7 @@ export default function DashboardPage() {
               A visual breakdown of your scheduled reminders over the year.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pr-0">
             <RemindersChart data={remindersChartData} />
           </CardContent>
         </Card>

@@ -47,12 +47,13 @@ type ScheduleReminderDialogProps = {
   children: React.ReactNode;
   reminder?: Reminder;
   mode?: 'add' | 'edit';
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 
-export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: ScheduleReminderDialogProps) {
+export function ScheduleReminderDialog({ children, reminder, mode = 'add', open, onOpenChange }: ScheduleReminderDialogProps) {
   const { toast } = useToast();
-  const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { isPro } = useSubscription();
 
@@ -106,13 +107,13 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: Sch
       if (mode === 'add') {
         form.reset();
       }
-      setOpen(false);
+      onOpenChange?.(false);
       setIsSubmitting(false);
     }, 1000);
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md w-[90vw] rounded-lg">
         <DialogHeader>
@@ -235,8 +236,11 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: Sch
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="w-full" loading={isSubmitting}>{mode === 'add' ? 'Schedule Reminder' : 'Save Changes'}</Button>
-            </DialogFooter>
+  <Button type="submit" className="w-full" loading={isSubmitting}>
+    <span>{mode === 'add' ? 'Schedule Reminder' : 'Save Changes'}</span>
+  </Button>
+</DialogFooter>
+
           </form>
         </Form>
       </DialogContent>

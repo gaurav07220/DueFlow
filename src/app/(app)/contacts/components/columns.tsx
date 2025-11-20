@@ -84,6 +84,7 @@ export const columns: ColumnDef<Contact>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const contact = row.original;
+      const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -94,19 +95,17 @@ export const columns: ColumnDef<Contact>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-               <AddContactDialog contact={contact} mode='edit'>
-                  <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                    <Edit />
-                    <span>Edit contact</span>
-                  </button>
-               </AddContactDialog>
-            </DropdownMenuItem>
+            <AddContactDialog contact={contact} mode='edit' open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  <span>Edit contact</span>
+              </DropdownMenuItem>
+            </AddContactDialog>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <DeleteContactDialog contactId={contact.id}>
                 <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-destructive/10 focus:text-destructive data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                  <Trash />
+                  <Trash  className="mr-2 h-4 w-4" />
                   <span>Delete contact</span>
                 </button>
               </DeleteContactDialog>
