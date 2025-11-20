@@ -1,118 +1,89 @@
 
 'use client';
 
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, doc, updateDoc, addDoc } from 'firebase/firestore';
 import { useEffect } from 'react';
-import { useFirestore, useUser } from '@/firebase';
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  writeBatch,
-  doc,
-  addDoc,
-} from 'firebase/firestore';
-import type { Reminder } from '@/lib/types';
+import type { Reminder, Contact } from '@/lib/types';
+import { toast } from '@/hooks/use-toast';
 
-// This component is designed to be invisible and runs in the background.
 export function ReminderProcessor() {
-  const firestore = useFirestore();
   const { user } = useUser();
+  const firestore = useFirestore();
+
+  const pendingRemindersQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid), where('status', '==', 'pending')) : null,
+    [firestore, user]
+  );
+  
+  const { data: pendingReminders } = useCollection<Reminder>(pendingRemindersQuery);
+
+  const contactsQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'contacts'), where('userId', '==', user.uid)) : null,
+    [firestore, user]
+  );
+  const { data: contacts } = useCollection<Contact>(contactsQuery);
 
   useEffect(() => {
-    if (!user || !firestore) return;
+    if (!pendingReminders || !contacts || !firestore || !user) return;
 
-    // Function to check for and process overdue reminders
+    const contactsMap = new Map(contacts.map(c => [c.id, c]));
+    const now = new Date();
+
     const processOverdueReminders = async () => {
-      console.log('Checking for overdue reminders...');
-      
-      // Query for reminders that are pending for the current user
-      const q = query(
-        collection(firestore, 'reminders'),
-        where('userId', '==', user.uid),
-        where('status', '==', 'pending')
-      );
-
-      try {
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-          console.log('No pending reminders found.');
-          return;
-        }
-
-        const now = new Date();
-        const batch = writeBatch(firestore);
-        let overdueCount = 0;
-
-        // We need to fetch contacts to get their email addresses
-        const contactsQuery = query(collection(firestore, 'contacts'), where('userId', '==', user.uid));
-        const contactsSnapshot = await getDocs(contactsQuery);
-        const contactsMap = new Map(contactsSnapshot.docs.map(doc => [doc.id, doc.data()]));
-        
-        const mailCollection = collection(firestore, 'mail');
-
-        // Filter for overdue reminders on the client side
-        for (const document of querySnapshot.docs) {
-          const reminder = document.data() as Reminder;
-          const scheduledAt = new Date(reminder.scheduledAt);
-
-          if (scheduledAt <= now) {
-            console.log(`Processing reminder: ${document.id} for channel ${reminder.channel}`);
+      for (const reminder of pendingReminders) {
+        if (new Date(reminder.scheduledAt) <= now) {
+          try {
             const contact = contactsMap.get(reminder.contactId);
-            
-            if (contact) {
-              const reminderRef = doc(firestore, 'reminders', document.id);
-
-              if (reminder.channel === 'Email') {
-                // Create a mail document in the 'mail' collection for the "Trigger Email" Firebase Extension
-                await addDoc(mailCollection, {
-                  to: [contact.email],
-                  message: {
-                    subject: `A reminder for ${contact.name}`,
-                    html: `Hi ${contact.name},<br><br>This is a reminder about the following: <br><br><i>${reminder.message}</i>`,
-                  },
-                });
-                console.log(`Email request created for ${contact.email}`);
-              } else if (reminder.channel === 'SMS' || reminder.channel === 'WhatsApp') {
-                // SIMULATE sending SMS or WhatsApp. In a real app, this would be a call to a backend function.
-                console.log('--- SIMULATING MESSAGE SEND ---');
-                console.log(`Channel: ${reminder.channel}`);
-                console.log(`To: ${contact.name} (${contact.phone})`);
-                console.log(`Message: "${reminder.message}"`);
-                console.log('-----------------------------');
-              }
-              
-              batch.update(reminderRef, { status: 'sent' });
-              overdueCount++;
-
-            } else {
-              console.warn(`Contact not found for reminder ${document.id}. Cannot process.`);
-              const reminderRef = doc(firestore, 'reminders', document.id);
-              batch.update(reminderRef, { status: 'failed' });
+            if (!contact) {
+                console.warn(`Contact not found for reminder ${reminder.id}, skipping.`);
+                continue;
             }
+
+            if (reminder.channel === 'Email') {
+                const mailCollection = collection(firestore, 'mail');
+                await addDoc(mailCollection, {
+                    to: [contact.email],
+                    message: {
+                        subject: `Reminder for ${contact.name}`,
+                        html: reminder.message,
+                    },
+                });
+            } else if (reminder.channel === 'SMS' || reminder.channel === 'WhatsApp') {
+              // SIMULATE sending SMS or WhatsApp. In a real app, this would be a call to a backend function.
+              console.log('--- SIMULATING MESSAGE SEND ---');
+              console.log(`Channel: ${reminder.channel}`);
+              console.log(`To: ${contact.name} (${contact.phone})`);
+              console.log(`Message: "${reminder.message}"`);
+              console.log('-----------------------------');
+            }
+
+            const reminderRef = doc(firestore, 'reminders', reminder.id);
+            await updateDoc(reminderRef, { status: 'sent' });
+
+          } catch (error: any) {
+            console.error(`Failed to process reminder ${reminder.id}:`, error);
+            const contactName = contactsMap.get(reminder.contactId)?.name || 'an unknown contact';
+            toast({
+                variant: 'destructive',
+                title: 'Reminder Processing Error',
+                description: `Could not process a reminder for ${contactName}.`,
+            });
           }
         }
-
-        if (overdueCount > 0) {
-          await batch.commit();
-          console.log(`Successfully processed ${overdueCount} reminders.`);
-        } else {
-          console.log('No overdue reminders to process.');
-        }
-
-      } catch (error) {
-        console.error('Error processing reminders:', error);
       }
     };
 
-    // Run the check immediately on load, and then set up an interval
+    const intervalId = setInterval(() => {
+        processOverdueReminders();
+    }, 60000); // Check every 60 seconds
+
+    // Initial check on load
     processOverdueReminders();
-    const intervalId = setInterval(processOverdueReminders, 60000); // Check every 60 seconds
 
-    // Clean up the interval when the component unmounts
     return () => clearInterval(intervalId);
-  }, [firestore, user]);
 
-  // This component renders nothing in the UI
-  return null;
+  }, [pendingReminders, contacts, firestore, user, toast]);
+
+  return null; // This component does not render anything
 }
