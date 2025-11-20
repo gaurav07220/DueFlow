@@ -78,7 +78,7 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md w-[90vw] rounded-lg">
+      <DialogContent className="sm:max-w-md w-[90vw] rounded-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className='font-headline'>Schedule a Follow-Up</DialogTitle>
           <DialogDescription>
@@ -86,7 +86,7 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-2">
             <FormField
               control={form.control}
               name="contactId"

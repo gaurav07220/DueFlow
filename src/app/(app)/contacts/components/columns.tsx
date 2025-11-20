@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Contact } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format, formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
@@ -27,7 +27,7 @@ export const columns: ColumnDef<Contact>[] = [
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarImage src={contact.avatarUrl} alt={contact.name} />
-            <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{getInitials(contact.name)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="font-medium">{contact.name}</span>

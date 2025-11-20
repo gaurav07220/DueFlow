@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import type { Reminder } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, getInitials } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 
@@ -11,11 +11,21 @@ const useRelativeTime = (date: Date) => {
   const [relativeTime, setRelativeTime] = useState('');
 
   useEffect(() => {
+    // This effect runs only on the client, after hydration
     setRelativeTime(formatDistanceToNow(date, { addSuffix: true }));
+
+    // Optional: Set up an interval to update the time periodically
+    const interval = setInterval(() => {
+      setRelativeTime(formatDistanceToNow(date, { addSuffix: true }));
+    }, 60000); // every minute
+
+    return () => clearInterval(interval);
   }, [date]);
 
+  // Render a placeholder or nothing on the server
   return relativeTime;
 };
+
 
 const ReminderItem = ({ reminder }: { reminder: Reminder }) => {
   const relativeTime = useRelativeTime(reminder.scheduledAt);
@@ -24,7 +34,7 @@ const ReminderItem = ({ reminder }: { reminder: Reminder }) => {
     <div className="flex flex-wrap items-center gap-4">
       <Avatar className="h-9 w-9">
         <AvatarImage src={reminder.contact.avatarUrl} alt="Avatar" />
-        <AvatarFallback>{reminder.contact.name.charAt(0)}</AvatarFallback>
+        <AvatarFallback>{getInitials(reminder.contact.name)}</AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium leading-none truncate">
@@ -35,13 +45,13 @@ const ReminderItem = ({ reminder }: { reminder: Reminder }) => {
       <div className="ml-auto font-medium text-right shrink-0">
         <Badge
           variant={reminder.channel === 'Email' ? 'default' : reminder.channel === 'SMS' ? 'secondary' : 'outline'}
-          className={cn(reminder.channel === 'Email' && 'bg-blue-500 hover:bg-blue-600', reminder.channel === 'SMS' && 'bg-green-500 hover:bg-green-600', reminder.channel === 'WhatsApp' && 'bg-teal-500 hover:bg-teal-600', 'text-white')}
+          className={cn(reminder.channel === 'Email' && 'bg-green-500/10 text-green-400 border-green-400/50', reminder.channel === 'SMS' && 'bg-green-500/10 text-green-400 border-green-400/50', reminder.channel === 'WhatsApp' && 'bg-green-500/10 text-green-400 border-green-400/50', 'text-white')}
         >
           {reminder.channel}
         </Badge>
-        <p className="text-xs text-muted-foreground mt-1">
+        {relativeTime && <p className="text-xs text-muted-foreground mt-1">
           {relativeTime}
-        </p>
+        </p>}
       </div>
     </div>
   );

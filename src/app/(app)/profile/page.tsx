@@ -1,11 +1,11 @@
 
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { mockUser } from '@/lib/mock-data';
+import { getInitials } from '@/lib/utils';
 
 export default function ProfilePage() {
   return (
@@ -29,7 +29,7 @@ export default function ProfilePage() {
           <div className="flex flex-wrap items-center gap-4">
             <Avatar className="h-20 w-20">
               <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} />
-              <AvatarFallback>{mockUser.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{getInitials(mockUser.name)}</AvatarFallback>
             </Avatar>
             <div className='flex-1 min-w-[200px]'>
                 <Label htmlFor="avatar">Avatar URL</Label>

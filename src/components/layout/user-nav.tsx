@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { mockUser } from '@/lib/mock-data';
+import { getInitials } from '@/lib/utils';
 import { CreditCard, LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 
@@ -23,7 +24,7 @@ export function UserNav() {
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} />
-            <AvatarFallback>{mockUser.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{getInitials(mockUser.name)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

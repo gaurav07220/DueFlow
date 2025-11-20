@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Reminder } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Mail, MessageSquare, MoreHorizontal, Phone } from 'lucide-react';
@@ -26,16 +26,19 @@ const channelIcons = {
 
 const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date }) => {
     const [relativeTime, setRelativeTime] = React.useState('');
-    const isPast = new Date() > scheduledAt;
   
     React.useEffect(() => {
       setRelativeTime(formatDistanceToNow(scheduledAt, { addSuffix: true }));
+       const interval = setInterval(() => {
+        setRelativeTime(formatDistanceToNow(scheduledAt, { addSuffix: true }));
+      }, 60000);
+      return () => clearInterval(interval);
     }, [scheduledAt]);
   
     return (
       <div>
         <div className="font-medium">{format(scheduledAt, 'MMM d, yyyy, p')}</div>
-        {relativeTime && <div className="text-xs text-muted-foreground">{relativeTime}{isPast ? "" : ""}</div>}
+        {relativeTime && <div className="text-xs text-muted-foreground">{relativeTime}</div>}
       </div>
     );
 };
@@ -50,7 +53,7 @@ export const columns: ColumnDef<Reminder>[] = [
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarImage src={contact.avatarUrl} alt={contact.name} />
-            <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{getInitials(contact.name)}</AvatarFallback>
           </Avatar>
           <span className="font-medium">{contact.name}</span>
         </div>
