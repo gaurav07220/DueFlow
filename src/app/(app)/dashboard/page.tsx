@@ -16,8 +16,9 @@ import { AddContactDialog } from '../contacts/components/add-contact-dialog';
 import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { mockHistory, mockReminders } from '@/lib/mock-data';
+import { mockHistory } from '@/lib/mock-data';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { Reminder } from '@/lib/types';
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -29,8 +30,11 @@ export default function DashboardPage() {
   );
   const { data: contacts, isLoading: isLoadingContacts } = useCollection(contactsQuery);
 
-  const reminders = mockReminders;
-  const isLoadingReminders = false;
+  const remindersQuery = useMemoFirebase(() =>
+    user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid)) : null,
+    [firestore, user]
+  );
+  const { data: reminders, isLoading: isLoadingReminders } = useCollection<Reminder>(remindersQuery);
   
   const remindersChartData = [
     { name: 'Jan', total: 0 }, { name: 'Feb', total: 0 }, { name: 'Mar', total: 0 },
@@ -47,7 +51,7 @@ export default function DashboardPage() {
     }
   });
 
-  const upcomingReminders = reminders?.filter(r => r.status === 'pending') || [];
+  const upcomingReminders = reminders?.filter(r => new Date(r.scheduledAt) >= new Date() && r.status === 'pending').sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()) || [];
   const isLoading = isLoadingContacts || isLoadingReminders;
 
   return (

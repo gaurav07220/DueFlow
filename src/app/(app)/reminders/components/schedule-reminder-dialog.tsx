@@ -34,7 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import type { Contact, Reminder } from '@/lib/types';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, addDoc } from 'firebase/firestore';
 
 const formSchema = z.object({
   contactId: z.string({ required_error: 'Please select a contact.' }),
@@ -100,16 +100,50 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
     }
   }, [reminder, mode, form, open]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if(!user || !contacts) return;
     setIsSubmitting(true);
+
+    const selectedContact = contacts.find(c => c.id === values.contactId);
+    if (!selectedContact) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Selected contact not found.',
+        });
+        setIsSubmitting(false);
+        return;
+    }
     
     if (mode === 'add') {
-      toast({
-        title: 'Reminder Scheduled',
-        description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}. (Mock)`,
-      });
+      try {
+        const newReminder = {
+          userId: user.uid,
+          contactId: values.contactId,
+          contact: {
+            id: selectedContact.id,
+            name: selectedContact.name,
+            avatarUrl: selectedContact.avatarUrl,
+          },
+          channel: values.channel,
+          scheduledAt: values.scheduledAt.toISOString(),
+          message: values.message,
+          status: 'pending',
+        };
+        await addDoc(collection(firestore, 'reminders'), newReminder);
+        toast({
+          title: 'Reminder Scheduled',
+          description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
+        });
+      } catch (error) {
+         toast({
+          variant: 'destructive',
+          title: 'Error Scheduling Reminder',
+          description: 'There was a problem saving your reminder.',
+        });
+      }
     } else {
+      // Mock update for now
       toast({
         title: 'Reminder Updated',
         description: `The reminder has been updated (mock).`,

@@ -50,5 +50,3 @@ export type SubscriptionPlan = {
   cta: string;
   highlighted?: boolean;
 };
-
-    
