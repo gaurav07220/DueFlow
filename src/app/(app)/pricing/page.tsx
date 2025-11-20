@@ -17,7 +17,7 @@ export default function PricingPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
         {subscriptionPlans.map((plan) => (
           <Card key={plan.name} className={cn('flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1', plan.highlighted && 'border-primary ring-2 ring-primary')}>
             <CardHeader className={cn(plan.highlighted && 'bg-primary/5')}>
@@ -30,8 +30,8 @@ export default function PricingPage() {
             <CardContent className="flex-1">
               <ul className="space-y-3 text-sm">
                 {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-center">
-                    <Check className="mr-2 h-4 w-4 text-primary" />
+                  <li key={i} className="flex items-start">
+                    <Check className="mr-2 h-4 w-4 text-primary flex-shrink-0 mt-1" />
                     <span>{feature}</span>
                   </li>
                 ))}
