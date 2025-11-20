@@ -26,7 +26,7 @@ export default function DashboardPage() {
             Here's a summary of your follow-up activity.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
             <AddContactDialog>
               <Button variant="outline">
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -42,7 +42,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
@@ -85,8 +85,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+      <div className="grid gap-6 lg:grid-cols-7">
+        <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle className='font-headline'>Reminders Overview</CardTitle>
              <CardDescription>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
             <RemindersChart data={remindersChartData} />
           </CardContent>
         </Card>
-        <Card className="col-span-4 lg:col-span-3">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className='font-headline'>Upcoming Reminders</CardTitle>
             <CardDescription>

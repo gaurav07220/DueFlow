@@ -26,18 +26,18 @@ export default function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <Avatar className="h-20 w-20">
               <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} />
               <AvatarFallback>{mockUser.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className='flex-1'>
+            <div className='flex-1 min-w-[200px]'>
                 <Label htmlFor="avatar">Avatar URL</Label>
                 <Input id="avatar" defaultValue={mockUser.avatarUrl} />
             </div>
             <Button variant="outline" className='self-end'>Change</Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input id="name" defaultValue={mockUser.name} />
@@ -47,7 +47,7 @@ export default function ProfilePage() {
               <Input id="business-name" defaultValue={mockUser.businessName} />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Mobile Number</Label>
               <Input id="phone" type="tel" defaultValue="+1 123 456 7890" />

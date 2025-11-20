@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -77,7 +78,7 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md w-[90vw] rounded-lg">
         <DialogHeader>
           <DialogTitle className='font-headline'>Schedule a Follow-Up</DialogTitle>
           <DialogDescription>
@@ -85,7 +86,7 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
             <FormField
               control={form.control}
               name="contactId"
@@ -119,27 +120,27 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="grid grid-cols-3 gap-4"
+                      className="grid grid-cols-3 gap-2 sm:gap-4"
                     >
                       <FormItem>
                         <RadioGroupItem value="Email" id="r-email" className="peer sr-only" />
-                        <FormLabel htmlFor="r-email" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                          <Mail className="mb-3 h-6 w-6" />
-                          Email
+                        <FormLabel htmlFor="r-email" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                          <Mail className="mb-2 h-5 w-5 sm:mb-3 sm:h-6 sm:w-6" />
+                          <span className="text-xs sm:text-sm">Email</span>
                         </FormLabel>
                       </FormItem>
                       <FormItem>
                         <RadioGroupItem value="SMS" id="r-sms" className="peer sr-only" />
-                        <FormLabel htmlFor="r-sms" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                          <MessageSquare className="mb-3 h-6 w-6" />
-                          SMS
+                        <FormLabel htmlFor="r-sms" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                          <MessageSquare className="mb-2 h-5 w-5 sm:mb-3 sm:h-6 sm:w-6" />
+                          <span className="text-xs sm:text-sm">SMS</span>
                         </FormLabel>
                       </FormItem>
                       <FormItem>
                         <RadioGroupItem value="WhatsApp" id="r-whatsapp" className="peer sr-only" />
-                        <FormLabel htmlFor="r-whatsapp" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                          <Phone className="mb-3 h-6 w-6" />
-                          WhatsApp
+                        <FormLabel htmlFor="r-whatsapp" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                          <Phone className="mb-2 h-5 w-5 sm:mb-3 sm:h-6 sm:w-6" />
+                          <span className="text-xs sm:text-sm">WhatsApp</span>
                         </FormLabel>
                       </FormItem>
                     </RadioGroup>
