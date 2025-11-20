@@ -21,6 +21,7 @@ export type User = {
 
 export type Contact = {
   id: string;
+  userId: string;
   name: string;
   email: string;
   phone: string;
@@ -32,6 +33,7 @@ export type Contact = {
 
 export type Reminder = {
   id: string;
+  userId: string;
   contact: Pick<Contact, 'id' | 'name' | 'avatarUrl'>;
   channel: 'Email' | 'SMS' | 'WhatsApp';
   message: string;
@@ -41,6 +43,7 @@ export type Reminder = {
 
 export type HistoryLog = {
   id: string;
+  userId: string;
   reminderId: string;
   contactName: string;
   channel: 'Email' | 'SMS' | 'WhatsApp' | 'System';
