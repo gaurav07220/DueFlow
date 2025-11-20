@@ -5,6 +5,8 @@ import {
   History,
   CreditCard,
   HelpCircle,
+  User,
+  Settings,
 } from 'lucide-react';
 import type { NavItem } from './types';
 
