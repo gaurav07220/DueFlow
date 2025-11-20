@@ -24,7 +24,6 @@ export type Contact = {
 export type Reminder = {
   id: string;
   userId: string;
-  contact: Pick<Contact, 'id' | 'name' | 'avatarUrl'>;
   contactId: string;
   channel: 'Email' | 'SMS' | 'WhatsApp';
   message: string;
@@ -49,4 +48,9 @@ export type SubscriptionPlan = {
   features: string[];
   cta: string;
   highlighted?: boolean;
+};
+
+// This type is used for displaying reminders with their contact info joined.
+export type ReminderWithContact = Reminder & {
+  contact: Pick<Contact, 'id' | 'name' | 'avatarUrl'>;
 };

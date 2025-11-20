@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import type { Reminder } from '@/lib/types';
+import type { ReminderWithContact } from '@/lib/types';
 import { format } from 'date-fns';
 import { Calendar, User, MessageCircle, Tag } from 'lucide-react';
 import React from 'react';
@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 type ViewReminderDialogProps = {
-  reminder: Reminder;
+  reminder: ReminderWithContact;
   children: React.ReactNode;
 };
 
@@ -84,5 +84,3 @@ export function ViewReminderDialog({ reminder, children }: ViewReminderDialogPro
     </Dialog>
   );
 }
-
-    

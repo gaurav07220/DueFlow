@@ -3,7 +3,7 @@
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import type { Reminder } from '@/lib/types';
+import type { ReminderWithContact } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
@@ -26,8 +26,12 @@ const useRelativeTime = (date: Date | string) => {
 };
 
 
-const ReminderItem = ({ reminder }: { reminder: Reminder }) => {
+const ReminderItem = ({ reminder }: { reminder: ReminderWithContact }) => {
   const relativeTime = useRelativeTime(reminder.scheduledAt);
+
+  if (!reminder.contact) {
+    return null;
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-4">
@@ -57,7 +61,7 @@ const ReminderItem = ({ reminder }: { reminder: Reminder }) => {
 
 
 type RecentRemindersProps = {
-  reminders: Reminder[];
+  reminders: ReminderWithContact[];
 };
 
 export function RecentReminders({ reminders }: RecentRemindersProps) {
@@ -72,5 +76,3 @@ export function RecentReminders({ reminders }: RecentRemindersProps) {
     </div>
   );
 }
-
-    

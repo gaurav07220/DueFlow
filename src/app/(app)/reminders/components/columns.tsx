@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Reminder } from '@/lib/types';
+import type { ReminderWithContact } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -52,12 +52,15 @@ const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date | string }) => {
     );
 };
 
-export const columns: ColumnDef<Reminder>[] = [
+export const columns: ColumnDef<ReminderWithContact>[] = [
   {
     accessorKey: 'contact',
     header: 'Contact',
     cell: ({ row }) => {
       const contact = row.original.contact;
+      if (!contact) {
+        return <span className="text-muted-foreground">Loading...</span>;
+      }
       return (
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
@@ -124,6 +127,9 @@ export const columns: ColumnDef<Reminder>[] = [
       const { toast } = useToast();
       const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
+      if (!reminder.contact) {
+        return null;
+      }
 
       function handleMarkAsPaid() {
         toast({
@@ -183,5 +189,3 @@ export const columns: ColumnDef<Reminder>[] = [
     },
   },
 ];
-
-    

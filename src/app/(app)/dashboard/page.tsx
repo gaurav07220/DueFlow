@@ -17,7 +17,8 @@ import { ScheduleReminderDialog } from '../reminders/components/schedule-reminde
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Reminder } from '@/lib/types';
+import type { Reminder, Contact, ReminderWithContact } from '@/lib/types';
+import { useMemo } from 'react';
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -27,13 +28,25 @@ export default function DashboardPage() {
     user ? query(collection(firestore, 'contacts'), where('userId', '==', user.uid)) : null,
     [firestore, user]
   );
-  const { data: contacts, isLoading: isLoadingContacts } = useCollection(contactsQuery);
+  const { data: contacts, isLoading: isLoadingContacts } = useCollection<Contact>(contactsQuery);
 
   const remindersQuery = useMemoFirebase(() =>
     user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid)) : null,
     [firestore, user]
   );
   const { data: reminders, isLoading: isLoadingReminders } = useCollection<Reminder>(remindersQuery);
+
+  const remindersWithContacts = useMemo((): ReminderWithContact[] => {
+    if (!reminders || !contacts) return [];
+    const contactsMap = new Map(contacts.map(c => [c.id, c]));
+    return reminders.map(reminder => {
+      const contact = contactsMap.get(reminder.contactId);
+      return {
+        ...reminder,
+        contact: contact ? { id: contact.id, name: contact.name, avatarUrl: contact.avatarUrl } : { id: 'unknown', name: 'Unknown Contact', avatarUrl: '' },
+      };
+    });
+  }, [reminders, contacts]);
   
   const remindersChartData = [
     { name: 'Jan', total: 0 }, { name: 'Feb', total: 0 }, { name: 'Mar', total: 0 },
@@ -50,7 +63,7 @@ export default function DashboardPage() {
     }
   });
 
-  const upcomingReminders = reminders?.filter(r => new Date(r.scheduledAt) >= new Date() && r.status === 'pending').sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()) || [];
+  const upcomingReminders = remindersWithContacts.filter(r => new Date(r.scheduledAt) >= new Date() && r.status === 'pending').sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()) || [];
   const isLoading = isLoadingContacts || isLoadingReminders;
   const paidRemindersCount = reminders?.filter(r => r.status === 'paid').length || 0;
 

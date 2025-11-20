@@ -32,7 +32,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { Contact, Reminder } from '@/lib/types';
+import type { Contact, ReminderWithContact } from '@/lib/types';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, addDoc } from 'firebase/firestore';
 
@@ -45,7 +45,7 @@ const formSchema = z.object({
 
 type ScheduleReminderDialogProps = { 
   children: React.ReactNode;
-  reminder?: Reminder;
+  reminder?: ReminderWithContact;
   mode?: 'add' | 'edit';
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -71,7 +71,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: mode === 'edit' && reminder ? {
-      contactId: reminder.contact.id,
+      contactId: reminder.contactId,
       channel: reminder.channel,
       scheduledAt: new Date(reminder.scheduledAt),
       message: reminder.message,
@@ -84,7 +84,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
     if (open) {
         if (mode === 'edit' && reminder) {
         form.reset({
-            contactId: reminder.contact.id,
+            contactId: reminder.contactId,
             channel: reminder.channel,
             scheduledAt: new Date(reminder.scheduledAt),
             message: reminder.message,
@@ -103,32 +103,16 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if(!user || !contacts) return;
     setIsSubmitting(true);
-
-    const selectedContact = contacts.find(c => c.id === values.contactId);
-    if (!selectedContact) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Selected contact not found.',
-        });
-        setIsSubmitting(false);
-        return;
-    }
     
     if (mode === 'add') {
       try {
         const newReminder = {
           userId: user.uid,
           contactId: values.contactId,
-          contact: {
-            id: selectedContact.id,
-            name: selectedContact.name,
-            avatarUrl: selectedContact.avatarUrl,
-          },
           channel: values.channel,
           scheduledAt: values.scheduledAt.toISOString(),
           message: values.message,
-          status: 'pending',
+          status: 'pending' as const,
         };
         await addDoc(collection(firestore, 'reminders'), newReminder);
         toast({
@@ -201,7 +185,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a channel" />
-                      </SelectTrigger>
+                      </Tsligger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="Email">Email</SelectItem>
