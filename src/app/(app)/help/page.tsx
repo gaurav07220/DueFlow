@@ -8,7 +8,7 @@ const faqs = [
     },
     {
         question: "Which channels can I use for reminders?",
-        answer: "Nurturely supports sending reminders via Email, SMS, and WhatsApp. You can choose the desired channel when scheduling a new reminder. Note that SMS and WhatsApp require third-party API configurations (e.g., Twilio)."
+        answer: "DueFlow supports sending reminders via Email, SMS, and WhatsApp. You can choose the desired channel when scheduling a new reminder. Note that SMS and WhatsApp require third-party API configurations (e.g., Twilio)."
     },
     {
         question: "How does the subscription plan work?",
@@ -32,7 +32,7 @@ export default function HelpPage() {
           Help & Support
         </h1>
         <p className="text-muted-foreground mt-2">
-          Find answers to common questions about Nurturely.
+          Find answers to common questions about DueFlow.
         </p>
       </div>
 

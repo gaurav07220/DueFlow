@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "Nurturely",
+  title: "DueFlow",
   description: "Automate your business follow-ups with ease.",
 };
 

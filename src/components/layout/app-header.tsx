@@ -32,7 +32,7 @@ export function AppHeader() {
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
           <Package className="h-6 w-6 text-primary" />
-          <span className="font-headline text-xl font-bold">Nurturely</span>
+          <span className="font-headline text-xl font-bold">DueFlow</span>
         </Link>
         {navItems.filter(item => !item.hidden).map((item) => (
           <Link
@@ -71,11 +71,11 @@ export function AppHeader() {
                 onClick={() => setOpen(false)}
               >
                 <Package className="h-6 w-6 text-primary" />
-                <span className="font-headline text-xl font-bold">Nurturely</span>
+                <span className="font-headline text-xl font-bold">DueFlow</span>
               </Link>
             </SheetTitle>
             <SheetDescription>
-              Navigate through your Nurturely dashboard.
+              Navigate through your DueFlow dashboard.
             </SheetDescription>
           </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium mt-6">
@@ -101,7 +101,7 @@ export function AppHeader() {
       {/* Mobile Title */}
       <div className="flex md:hidden items-center gap-2 text-lg font-semibold">
           <Package className="h-6 w-6 text-primary" />
-          <span className="font-headline text-xl font-bold">Nurturely</span>
+          <span className="font-headline text-xl font-bold">DueFlow</span>
       </div>
 
       {/* Right side */}
