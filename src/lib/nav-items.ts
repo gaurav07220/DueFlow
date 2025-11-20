@@ -1,3 +1,4 @@
+
 import {
   LayoutDashboard,
   Users,
@@ -5,8 +6,6 @@ import {
   History,
   CreditCard,
   HelpCircle,
-  User,
-  Settings,
 } from 'lucide-react';
 import type { NavItem } from './types';
 
@@ -32,7 +31,7 @@ export const navItems: NavItem[] = [
     icon: History,
   },
   {
-    title: 'Pricing',
+    title: 'Subscription',
     href: '/pricing',
     icon: CreditCard,
   },

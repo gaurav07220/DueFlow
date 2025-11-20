@@ -41,13 +41,13 @@ export function UserNav() {
           <DropdownMenuItem asChild>
             <Link href="/profile">
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <span>My Profile</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/pricing">
               <CreditCard className="mr-2 h-4 w-4" />
-              <span>Billing</span>
+              <span>Subscription & Billing</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

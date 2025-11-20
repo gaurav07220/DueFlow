@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -5,24 +6,54 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { dashboardStats, remindersChartData, mockReminders } from '@/lib/mock-data';
-import { BellRing, CheckCircle, Clock, LineChart } from 'lucide-react';
+import { dashboardStats, remindersChartData, mockReminders, mockContacts } from '@/lib/mock-data';
+import { BellRing, Users, Clock, LineChart, PlusCircle } from 'lucide-react';
 import { RemindersChart } from './components/reminders-chart';
 import { RecentReminders } from './components/recent-reminders';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { AddContactDialog } from '../contacts/components/add-contact-dialog';
+import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
 
 export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
-      <div>
-        <h1 className="text-3xl font-headline font-bold tracking-tight">
-          Welcome back!
-        </h1>
-        <p className="text-muted-foreground">
-          Here's a summary of your follow-up activity.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-headline font-bold tracking-tight">
+            Welcome back!
+          </h1>
+          <p className="text-muted-foreground">
+            Here's a summary of your follow-up activity.
+          </p>
+        </div>
+        <div className="flex gap-2">
+            <AddContactDialog>
+              <Button variant="outline">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Contact
+              </Button>
+            </AddContactDialog>
+            <ScheduleReminderDialog>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Reminder
+              </Button>
+            </ScheduleReminderDialog>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="glow-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mockContacts.length}</div>
+            <p className="text-xs text-muted-foreground">All your managed contacts</p>
+          </CardContent>
+        </Card>
         <Card className="glow-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Reminders</CardTitle>
@@ -35,32 +66,22 @@ export default function DashboardPage() {
         </Card>
         <Card className="glow-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sent Reminders</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.sentReminders}</div>
-            <p className="text-xs text-muted-foreground">+5 this month</p>
-          </CardContent>
-        </Card>
-        <Card className="glow-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.pendingReminders}</div>
-            <p className="text-xs text-muted-foreground">Waiting to be sent</p>
+            <div className="text-2xl font-bold">{mockReminders.filter(r => r.status === 'pending').length}</div>
+            <p className="text-xs text-muted-foreground">Today, tomorrow, overdue</p>
           </CardContent>
         </Card>
         <Card className="bg-primary/10 border-primary/50 text-foreground glow-card">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversions</CardTitle>
+            <CardTitle className="text-sm font-medium">Payments Received</CardTitle>
             <LineChart className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.conversions}</div>
-            <p className="text-xs text-muted-foreground">+20% from last month</p>
+            <div className="text-2xl font-bold">${dashboardStats.conversions * 100}</div>
+            <p className="text-xs text-muted-foreground">vs ${dashboardStats.pendingReminders * 50} pending</p>
           </CardContent>
         </Card>
       </div>
@@ -68,7 +89,10 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4 glow-card bg-background/50">
           <CardHeader>
-            <CardTitle className='font-headline'>Overview</CardTitle>
+            <CardTitle className='font-headline'>Reminders Overview</CardTitle>
+             <CardDescription>
+              A visual breakdown of your scheduled reminders over the year.
+            </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
             <RemindersChart data={remindersChartData} />
@@ -76,13 +100,13 @@ export default function DashboardPage() {
         </Card>
         <Card className="col-span-4 lg:col-span-3 glow-card bg-background/50">
           <CardHeader>
-            <CardTitle className='font-headline'>Recent Reminders</CardTitle>
+            <CardTitle className='font-headline'>Upcoming Reminders</CardTitle>
             <CardDescription>
-              You have {mockReminders.filter(r => r.status === 'pending').length} pending reminders.
+              Your next scheduled follow-ups.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentReminders reminders={mockReminders} />
+            <RecentReminders reminders={mockReminders.filter(r => r.status === 'pending').sort((a,b) => a.scheduledAt.getTime() - b.scheduledAt.getTime())} />
           </CardContent>
         </Card>
       </div>

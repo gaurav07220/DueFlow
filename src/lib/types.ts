@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from "lucide-react";
 
 export type NavItem = {
@@ -10,6 +11,7 @@ export type NavItem = {
 export type User = {
   id: string;
   name: string;
+  businessName: string;
   email: string;
   avatarUrl: string;
   subscription: 'free' | 'pro' | 'enterprise';

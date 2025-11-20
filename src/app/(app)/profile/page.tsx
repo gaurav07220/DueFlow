@@ -1,7 +1,8 @@
 
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { mockUser } from '@/lib/mock-data';
@@ -11,17 +12,17 @@ export default function ProfilePage() {
     <div className="space-y-6 max-w-3xl mx-auto animate-in fade-in-0 duration-500">
        <div className="space-y-2">
         <h1 className="text-3xl font-headline font-bold tracking-tight">
-          Profile
+          My Profile
         </h1>
         <p className="text-muted-foreground">
-          Manage your account details.
+          Manage your personal and business information.
         </p>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className='font-headline'>Public Profile</CardTitle>
+          <CardTitle className='font-headline'>Profile Details</CardTitle>
           <CardDescription>
-            This information will be displayed publicly.
+            This information will be used for your account.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -36,22 +37,37 @@ export default function ProfilePage() {
             </div>
             <Button variant="outline" className='self-end'>Change</Button>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" defaultValue={mockUser.name} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" defaultValue={mockUser.name} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="business-name">Business Name</Label>
+              <Input id="business-name" defaultValue={mockUser.businessName} />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" defaultValue={mockUser.email} disabled />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Mobile Number</Label>
+              <Input id="phone" type="tel" defaultValue="+1 123 456 7890" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" defaultValue={mockUser.email} disabled />
+            </div>
           </div>
-          <Button>Update Profile</Button>
         </CardContent>
+         <CardFooter className='border-t pt-6'>
+          <Button>Update Profile</Button>
+        </CardFooter>
       </Card>
+
        <Card>
         <CardHeader>
-          <CardTitle className='font-headline'>Password</CardTitle>
+          <CardTitle className='font-headline'>Change Password</CardTitle>
           <CardDescription>
-            Change your password here.
+            For security, please choose a strong password.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -67,8 +83,10 @@ export default function ProfilePage() {
             <Label htmlFor="confirm-password">Confirm New Password</Label>
             <Input id="confirm-password" type="password" />
           </div>
-          <Button>Change Password</Button>
         </CardContent>
+        <CardFooter className='border-t pt-6'>
+          <Button>Change Password</Button>
+        </CardFooter>
       </Card>
     </div>
   );

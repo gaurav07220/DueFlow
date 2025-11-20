@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { mockUser } from '@/lib/mock-data';
+import { Separator } from '@/components/ui/separator';
 
 export default function SettingsPage() {
     const { toast } = useToast();
@@ -22,7 +23,7 @@ export default function SettingsPage() {
     }
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto animate-in fade-in-0 duration-500">
+    <div className="space-y-8 max-w-3xl mx-auto animate-in fade-in-0 duration-500">
         <div className="space-y-2">
             <h1 className="text-3xl font-headline font-bold tracking-tight">
             Settings
@@ -31,11 +32,30 @@ export default function SettingsPage() {
             Manage your application preferences and integrations.
             </p>
         </div>
+        
+        <Card>
+            <CardHeader>
+                <CardTitle className='font-headline'>API Integrations</CardTitle>
+                <CardDescription>Connect FollowPilot to your other services.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className='space-y-2'>
+                    <Label htmlFor="whatsapp-api">WhatsApp API Key</Label>
+                    <Input id="whatsapp-api" placeholder="Enter your WhatsApp Business API key" />
+                    <p className='text-xs text-muted-foreground'>Required for sending WhatsApp reminders.</p>
+                </div>
+                 <div className='space-y-2'>
+                    <Label htmlFor="smtp-email">Email SMTP Settings</Label>
+                    <Input id="smtp-email" placeholder="smtp.example.com:587" />
+                    <p className='text-xs text-muted-foreground'>Configure your SMTP server for sending emails.</p>
+                </div>
+            </CardContent>
+        </Card>
 
         <Card>
             <CardHeader>
                 <CardTitle className='font-headline'>Preferences</CardTitle>
-                <CardDescription>Customize the application's appearance and behavior.</CardDescription>
+                <CardDescription>Customize the application's behavior.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                  <div className="flex items-center justify-between space-x-2">
@@ -47,19 +67,7 @@ export default function SettingsPage() {
                     </Label>
                     <Switch id="dark-mode" defaultChecked={true} />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="language">Language</Label>
-                    <Select defaultValue="en">
-                        <SelectTrigger id="language">
-                            <SelectValue placeholder="Select language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="en">English</SelectItem>
-                            <SelectItem value="es">Spanish</SelectItem>
-                            <SelectItem value="fr">French</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                <Separator />
                  <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select defaultValue="est">
@@ -68,8 +76,10 @@ export default function SettingsPage() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="pst">Pacific Standard Time</SelectItem>
+                            <SelectItem value="mst">Mountain Standard Time</SelectItem>
                             <SelectItem value="est">Eastern Standard Time</SelectItem>
                             <SelectItem value="gmt">Greenwich Mean Time</SelectItem>
+                            <SelectItem value="ist">Indian Standard Time</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -110,12 +120,21 @@ export default function SettingsPage() {
                         </p>
                     </div>
                 </div>
+                 <div className="flex items-center justify-between space-x-2 pt-4">
+                    <Label htmlFor="notification-sound" className="flex flex-col space-y-1">
+                        <span>Notification Sound</span>
+                        <span className="font-normal text-sm text-muted-foreground">
+                         Play a sound for new notifications.
+                        </span>
+                    </Label>
+                    <Switch id="notification-sound" />
+                </div>
             </CardContent>
-            <CardFooter className='border-t pt-6'>
-                <Button onClick={handleSaveChanges}>Save Changes</Button>
-            </CardFooter>
         </Card>
-
+        
+        <div className='flex justify-start'>
+            <Button onClick={handleSaveChanges}>Save All Changes</Button>
+        </div>
     </div>
   );
 }
