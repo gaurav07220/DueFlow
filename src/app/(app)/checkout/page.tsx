@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -154,7 +155,7 @@ export default function CheckoutPage() {
                                     <TabsTrigger value="card">Card</TabsTrigger>
                                     <TabsTrigger value="upi">UPI</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="card" className="pt-4 min-h-[170px]">
+                                <TabsContent value="card" className="pt-4 h-[190px]">
                                      <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="card-number">Card Number</Label>
@@ -181,7 +182,7 @@ export default function CheckoutPage() {
                                         </div>
                                     </div>
                                 </TabsContent>
-                                <TabsContent value="upi" className="pt-4 min-h-[170px]">
+                                <TabsContent value="upi" className="pt-4 h-[190px]">
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="upi-id">UPI ID</Label>
@@ -205,4 +206,5 @@ export default function CheckoutPage() {
             </div>
         </div>
     );
-}
+
+    
