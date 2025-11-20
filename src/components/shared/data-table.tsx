@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableBody,
@@ -19,8 +21,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 // NOTE: This is a simplified DataTable for the MVP. It does not include
-// pagination, sorting, or filtering, as that would require adding
-// '@tanstack/react-table' as a dependency, which is not permitted.
+// pagination, sorting, or filtering.
 // This can be enhanced later.
 
 export function DataTable<TData, TValue>({
