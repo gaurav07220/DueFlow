@@ -11,6 +11,8 @@ import {
   writeBatch,
   doc,
 } from 'firebase/firestore';
+import { sendReminderEmail } from '@/services/email-service';
+import type { Reminder } from '@/lib/types';
 
 // This component is designed to be invisible and runs in the background.
 export function ReminderProcessor() {
@@ -42,13 +44,32 @@ export function ReminderProcessor() {
         const batch = writeBatch(firestore);
         let overdueCount = 0;
 
+        // We need to fetch contacts to get their email addresses
+        const contactsQuery = query(collection(firestore, 'contacts'), where('userId', '==', user.uid));
+        const contactsSnapshot = await getDocs(contactsQuery);
+        const contactsMap = new Map(contactsSnapshot.docs.map(doc => [doc.id, doc.data()]));
+
         // Filter for overdue reminders on the client side
         querySnapshot.forEach((document) => {
-          const reminder = document.data();
+          const reminder = document.data() as Reminder;
           const scheduledAt = new Date(reminder.scheduledAt);
 
           if (scheduledAt <= now) {
             console.log(`Processing reminder: ${document.id}`);
+            const contact = contactsMap.get(reminder.contactId);
+            
+            if (contact) {
+              // Simulate sending the email
+              sendReminderEmail({
+                to: contact.email,
+                name: contact.name,
+                message: reminder.message,
+                channel: reminder.channel,
+              });
+            } else {
+              console.warn(`Contact not found for reminder ${document.id}. Cannot send email.`);
+            }
+
             const reminderRef = doc(firestore, 'reminders', document.id);
             batch.update(reminderRef, { status: 'sent' });
             overdueCount++;
