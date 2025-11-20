@@ -20,10 +20,6 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-// NOTE: This is a simplified DataTable for the MVP. It does not include
-// pagination, sorting, or filtering.
-// This can be enhanced later.
-
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -35,12 +31,12 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
+    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden bg-background/50">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-b-border/50">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} className="whitespace-nowrap">
@@ -62,7 +58,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className="transition-colors"
+                  className="transition-colors border-border/50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="whitespace-nowrap">
