@@ -6,11 +6,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { subscriptionPlans } from '@/lib/mock-data';
-import { ArrowLeft, CreditCard, Lock, Mail, User, MapPin, Calendar, Building } from 'lucide-react';
+import { ArrowLeft, CreditCard, Lock, Mail, User, MapPin, Calendar } from 'lucide-react';
 import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+const UpiIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className='h-4 w-4 text-muted-foreground'>
+        <path d="M14.5 9.5L9.5 14.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14.5 14.5L9.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+);
+
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -139,29 +149,51 @@ export default function CheckoutPage() {
                              <CardDescription>All transactions are secure and encrypted.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="card-number">Card Number</Label>
-                                <div className="relative">
-                                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input id="card-number" placeholder="•••• •••• •••• ••••" className="pl-9" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="expiry">Expiry</Label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input id="expiry" placeholder="MM/YY" className="pl-9" />
+                            <Tabs defaultValue="card" className="w-full">
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="card">Card</TabsTrigger>
+                                    <TabsTrigger value="upi">UPI</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="card" className="pt-4">
+                                     <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="card-number">Card Number</Label>
+                                            <div className="relative">
+                                                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Input id="card-number" placeholder="•••• •••• •••• ••••" className="pl-9" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="expiry">Expiry</Label>
+                                                <div className="relative">
+                                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                    <Input id="expiry" placeholder="MM/YY" className="pl-9" />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="cvc">CVC</Label>
+                                                <div className="relative">
+                                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                    <Input id="cvc" placeholder="•••" className="pl-9" />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="cvc">CVC</Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input id="cvc" placeholder="•••" className="pl-9" />
+                                </TabsContent>
+                                <TabsContent value="upi" className="pt-4">
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="upi-id">UPI ID</Label>
+                                            <div className="relative">
+                                                <UpiIcon />
+                                                <Input id="upi-id" placeholder="yourname@bank" className="pl-9" />
+                                            </div>
+                                        </div>
+                                        <Button variant="outline" className="w-full">Verify & Pay</Button>
                                     </div>
-                                </div>
-                            </div>
+                                </TabsContent>
+                            </Tabs>
                         </CardContent>
                     </Card>
                     <form onSubmit={handleSubmit}>
