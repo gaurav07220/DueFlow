@@ -22,6 +22,8 @@ import { ScheduleReminderDialog } from './schedule-reminder-dialog';
 import { ViewReminderDialog } from './view-reminder-dialog';
 import { CancelReminderDialog } from './cancel-reminder-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useFirestore } from '@/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 const channelIcons = {
   Email: Mail,
@@ -122,20 +124,32 @@ export const columns: ColumnDef<ReminderWithContact>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => {
+    cell: function ActionsCell({ row }) {
       const reminder = row.original;
       const { toast } = useToast();
+      const firestore = useFirestore();
       const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
       if (!reminder.contact) {
         return null;
       }
 
-      function handleMarkAsPaid() {
-        toast({
-            title: 'Payment Recorded',
-            description: `Reminder for ${reminder.contact.name} marked as paid (mock).`,
-        });
+      async function handleMarkAsPaid() {
+        if (!firestore) return;
+        try {
+            const reminderRef = doc(firestore, 'reminders', reminder.id);
+            await updateDoc(reminderRef, { status: 'paid' });
+            toast({
+                title: 'Payment Recorded',
+                description: `Reminder for ${reminder.contact.name} marked as paid.`,
+            });
+        } catch (error: any) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: error.message || 'Could not update reminder status.',
+            });
+        }
       }
 
       return (

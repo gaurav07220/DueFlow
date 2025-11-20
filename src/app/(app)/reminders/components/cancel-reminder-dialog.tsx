@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
+import { useFirestore } from '@/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
 
 type CancelReminderDialogProps = {
   reminderId: string;
@@ -22,12 +24,24 @@ type CancelReminderDialogProps = {
 
 export function CancelReminderDialog({ reminderId, children }: CancelReminderDialogProps) {
   const { toast } = useToast();
+  const firestore = useFirestore();
 
-  function handleCancel() {
-    toast({
-      title: 'Reminder Canceled',
-      description: 'The scheduled reminder has been successfully canceled (mock).',
-    });
+  async function handleCancel() {
+    if (!firestore) return;
+    try {
+      const reminderRef = doc(firestore, 'reminders', reminderId);
+      await deleteDoc(reminderRef);
+      toast({
+        title: 'Reminder Canceled',
+        description: 'The scheduled reminder has been successfully canceled.',
+      });
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Could not cancel the reminder.',
+      });
+    }
   }
 
   return (
@@ -52,5 +66,3 @@ export function CancelReminderDialog({ reminderId, children }: CancelReminderDia
     </AlertDialog>
   );
 }
-
-    

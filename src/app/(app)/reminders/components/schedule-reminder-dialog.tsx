@@ -34,7 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import type { Contact, ReminderWithContact } from '@/lib/types';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, addDoc } from 'firebase/firestore';
+import { collection, query, addDoc, doc, updateDoc, where } from 'firebase/firestore';
 
 const formSchema = z.object({
   contactId: z.string({ required_error: 'Please select a contact.' }),
@@ -101,11 +101,11 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   }, [reminder, mode, form, open]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if(!user || !contacts) return;
+    if(!user || !firestore) return;
     setIsSubmitting(true);
     
-    if (mode === 'add') {
-      try {
+    try {
+      if (mode === 'add') {
         const newReminder = {
           userId: user.uid,
           contactId: values.contactId,
@@ -119,18 +119,22 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
           title: 'Reminder Scheduled',
           description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
         });
-      } catch (error) {
-         toast({
-          variant: 'destructive',
-          title: 'Error Scheduling Reminder',
-          description: 'There was a problem saving your reminder.',
+      } else if (mode === 'edit' && reminder) {
+        const reminderRef = doc(firestore, 'reminders', reminder.id);
+        await updateDoc(reminderRef, {
+            ...values,
+            scheduledAt: values.scheduledAt.toISOString(),
+        });
+        toast({
+          title: 'Reminder Updated',
+          description: `The reminder has been successfully updated.`,
         });
       }
-    } else {
-      // Mock update for now
-      toast({
-        title: 'Reminder Updated',
-        description: `The reminder has been updated (mock).`,
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Error Saving Reminder',
+        description: error.message || 'There was a problem saving your reminder.',
       });
     }
 
