@@ -11,7 +11,6 @@ import { BellRing, Users, Clock, LineChart, PlusCircle } from 'lucide-react';
 import { RemindersChart } from './components/reminders-chart';
 import { RecentReminders } from './components/recent-reminders';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { AddContactDialog } from '../contacts/components/add-contact-dialog';
 import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
 
@@ -20,7 +19,7 @@ export default function DashboardPage() {
     <div className="space-y-8 animate-in fade-in-0 duration-500">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-headline font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
             Welcome back!
           </h1>
           <p className="text-muted-foreground">
@@ -43,8 +42,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="glow-card">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -54,7 +53,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">All your managed contacts</p>
           </CardContent>
         </Card>
-        <Card className="glow-card">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Reminders</CardTitle>
             <BellRing className="h-4 w-4 text-muted-foreground" />
@@ -64,7 +63,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">All reminders scheduled</p>
           </CardContent>
         </Card>
-        <Card className="glow-card">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
@@ -74,10 +73,10 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">Today, tomorrow, overdue</p>
           </CardContent>
         </Card>
-        <Card className="bg-primary/10 border-primary/50 text-foreground glow-card">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Payments Received</CardTitle>
-            <LineChart className="h-4 w-4 text-primary" />
+            <LineChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${dashboardStats.conversions * 100}</div>
@@ -86,8 +85,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 glow-card bg-background/50">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle className='font-headline'>Reminders Overview</CardTitle>
              <CardDescription>
@@ -98,7 +97,7 @@ export default function DashboardPage() {
             <RemindersChart data={remindersChartData} />
           </CardContent>
         </Card>
-        <Card className="col-span-4 lg:col-span-3 glow-card bg-background/50">
+        <Card className="col-span-4 lg:col-span-3">
           <CardHeader>
             <CardTitle className='font-headline'>Upcoming Reminders</CardTitle>
             <CardDescription>

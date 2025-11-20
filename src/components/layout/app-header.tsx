@@ -20,14 +20,14 @@ export function AppHeader() {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 z-40">
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6 z-40">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
           <Package className="h-6 w-6 text-primary" />
-          <span className="font-headline text-xl">FollowPilot</span>
+          <span className="font-headline text-xl font-bold">FollowPilot</span>
         </Link>
         {navItems.map((item) => (
           <Link
@@ -63,7 +63,7 @@ export function AppHeader() {
               onClick={() => setOpen(false)}
             >
               <Package className="h-6 w-6 text-primary" />
-              <span className="font-headline text-xl">FollowPilot</span>
+              <span className="font-headline text-xl font-bold">FollowPilot</span>
             </Link>
             {navItems.map((item) => (
               <Link

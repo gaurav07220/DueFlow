@@ -72,7 +72,7 @@ export default function SignupPage() {
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm border-0 bg-transparent shadow-none sm:border sm:bg-card sm:shadow-lg">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center rounded-full bg-primary/10 p-4 w-20 h-20">
           <Package className="h-10 w-10 text-primary" />

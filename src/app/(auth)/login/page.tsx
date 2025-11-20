@@ -32,7 +32,7 @@ const GoogleIcon = () => (
       <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039L38.804 12.04C34.553 7.79 29.548 5 24 5C13.438 5 5 13.438 5 24s8.438 19 19 19s19-8.438 19-19c0-1.396-.143-2.761-.409-4.089z"></path>
       <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.553 7.79 29.548 5 24 5C17.661 5 12.012 8.441 8.046 13.5l-1.74-1.166z"></path>
       <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.223 0-9.65-3.657-11.303-8.5H6.306v.003C10.22 41.516 16.634 44 24 44z"></path>
-      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.034 12.034 0 0 1-11.303 8 11.9 11.9 0 0 1-11.303-8.5h-6.306v.003c3.984 6.096 10.402 8.497 17.609 8.497 6.627 0 12-5.373 12-12c0-1.396-.143-2.761-.409-4.089z"></path>
+      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.034 12.034 0 0 1-11.303 8 11.9 11.9 0 0 1-11.303-8.5h-6.306v.003c3.984 6.096 10.402 8.497 17.609 8.497 6.627 0 12-5.373-12-12c0-1.396-.143-2.761-.409-4.089z"></path>
     </svg>
   );
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm border-0 bg-transparent shadow-none sm:border sm:bg-card sm:shadow-lg">
       <CardHeader className="text-center">
         <div className="mx-auto mb-4 flex items-center justify-center rounded-full bg-primary/10 p-4 w-20 h-20">
           <Package className="h-10 w-10 text-primary" />
@@ -106,7 +106,7 @@ export default function LoginPage() {
                       <FormLabel>Password</FormLabel>
                       <Link
                         href="#"
-                        className="ml-auto inline-block text-xs underline"
+                        className="ml-auto inline-block text-xs text-primary underline-offset-4 hover:underline"
                       >
                         Forgot your password?
                       </Link>
