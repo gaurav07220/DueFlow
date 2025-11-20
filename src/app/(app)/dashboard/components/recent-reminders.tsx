@@ -7,11 +7,10 @@ import type { Reminder } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { Timestamp } from 'firebase/firestore';
 
-const useRelativeTime = (date: Date | Timestamp) => {
+const useRelativeTime = (date: Date | string) => {
   const [relativeTime, setRelativeTime] = useState('');
-  const actualDate = date instanceof Timestamp ? date.toDate() : date;
+  const actualDate = new Date(date);
 
   useEffect(() => {
     setRelativeTime(formatDistanceToNow(actualDate, { addSuffix: true }));
@@ -73,3 +72,5 @@ export function RecentReminders({ reminders }: RecentRemindersProps) {
     </div>
   );
 }
+
+    

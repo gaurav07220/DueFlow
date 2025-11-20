@@ -16,8 +16,6 @@ import { Calendar, User, MessageCircle, Tag } from 'lucide-react';
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Timestamp } from 'firebase/firestore';
-
 
 type ViewReminderDialogProps = {
   reminder: Reminder;
@@ -27,7 +25,7 @@ type ViewReminderDialogProps = {
 export function ViewReminderDialog({ reminder, children }: ViewReminderDialogProps) {
     const [open, setOpen] = React.useState(false);
     
-    const scheduledAtDate = reminder.scheduledAt instanceof Timestamp ? reminder.scheduledAt.toDate() : new Date(reminder.scheduledAt);
+    const scheduledAtDate = new Date(reminder.scheduledAt);
   
     return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -86,3 +84,5 @@ export function ViewReminderDialog({ reminder, children }: ViewReminderDialogPro
     </Dialog>
   );
 }
+
+    

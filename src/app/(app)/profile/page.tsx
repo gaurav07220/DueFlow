@@ -7,9 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getInitials } from '@/lib/utils';
-import { useAuth, useFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { updateProfile } from 'firebase/auth';
-import { doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useForm, zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +23,6 @@ const profileSchema = z.object({
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
-  const { firestore } = useFirebase();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -43,9 +41,6 @@ export default function ProfilePage() {
     
     try {
         await updateProfile(auth.currentUser, { displayName: values.name });
-        
-        const userDocRef = doc(firestore, 'users', user.uid);
-        await updateDocumentNonBlocking(userDocRef, { displayName: values.name });
         
         toast({
             title: 'Profile Updated',
@@ -153,3 +148,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,12 +32,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useSubscription } from '@/hooks/use-subscription';
-import Link from 'next/link';
-import type { Reminder, Contact } from '@/lib/types';
-import { useFirebase, useCollection, useMemoFirebase, useUser, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc, query, where } from 'firebase/firestore';
-import { Timestamp } from 'firebase/firestore';
+import type { Reminder } from '@/lib/types';
+import { mockContacts } from '@/lib/mock-data';
 
 const formSchema = z.object({
   contactId: z.string({ required_error: 'Please select a contact.' }),
@@ -56,24 +53,15 @@ type ScheduleReminderDialogProps = {
 export function ScheduleReminderDialog({ children, reminder, mode = 'add', open, onOpenChange }: ScheduleReminderDialogProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const { isPro } = useSubscription();
-
-  const { firestore } = useFirebase();
-  const { user } = useUser();
-
-  const contactsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'contacts'), where('userId', '==', user.uid));
-  }, [firestore, user]);
-
-  const { data: contacts, isLoading: isLoadingContacts } = useCollection<Contact>(contactsQuery);
+  const contacts = mockContacts;
+  const isLoadingContacts = false;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: mode === 'edit' && reminder ? {
       contactId: reminder.contact.id,
       channel: reminder.channel,
-      scheduledAt: reminder.scheduledAt instanceof Timestamp ? reminder.scheduledAt.toDate() : new Date(reminder.scheduledAt),
+      scheduledAt: new Date(reminder.scheduledAt),
       message: reminder.message,
     } : {
       message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
@@ -85,7 +73,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
       form.reset({
         contactId: reminder.contact.id,
         channel: reminder.channel,
-        scheduledAt: reminder.scheduledAt instanceof Timestamp ? reminder.scheduledAt.toDate() : new Date(reminder.scheduledAt),
+        scheduledAt: new Date(reminder.scheduledAt),
         message: reminder.message,
       });
     } else {
@@ -95,71 +83,25 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
     }
   }, [reminder, mode, form]);
 
-  // -----------------------------------------------------
-  // ✅ FIXED onSubmit — ensures userId is ALWAYS included
-  // -----------------------------------------------------
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!firestore || !user) return;
-
-    if (!isPro) {
-      toast({
-        variant: 'destructive',
-        title: 'Upgrade Required',
-        description: 'Please upgrade to a Pro plan to schedule reminders.',
-        action: <Button asChild><Link href="/pricing">Upgrade</Link></Button>,
-      });
-      return;
-    }
-    
     setIsSubmitting(true);
     
-    const selectedContact = contacts?.find(c => c.id === values.contactId);
-    if (!selectedContact) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Selected contact not found.' });
+    setTimeout(() => {
+      if (mode === 'add') {
+        toast({
+          title: 'Reminder Scheduled',
+          description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')} (mock).`,
+        });
+      } else {
+        toast({
+          title: 'Reminder Updated',
+          description: `The reminder has been updated (mock).`,
+        });
+      }
+      form.reset();
+      onOpenChange?.(false);
       setIsSubmitting(false);
-      return;
-    }
-    
-    // ⭐ ALWAYS write userId to the reminder document (fixes permission issues)
-    const reminderData = {
-      ...values,
-      userId: user.uid,
-      contact: {
-        id: selectedContact.id,
-        name: selectedContact.name,
-        avatarUrl: selectedContact.avatarUrl,
-      },
-      status: reminder?.status ?? 'pending',
-    };
-
-    if (mode === 'add') {
-      const remindersColRef = collection(firestore, 'reminders');
-      addDocumentNonBlocking(remindersColRef, reminderData)
-        .then(() => {
-          toast({
-            title: 'Reminder Scheduled',
-            description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
-          });
-          form.reset();
-          onOpenChange?.(false);
-        }).catch(err => {
-          toast({ variant: 'destructive', title: 'Error', description: err.message });
-        }).finally(() => setIsSubmitting(false));
-
-    } else if (reminder) {
-      const reminderDocRef = doc(firestore, 'reminders', reminder.id);
-
-      updateDocumentNonBlocking(reminderDocRef, reminderData)
-        .then(() => {
-          toast({
-            title: 'Reminder Updated',
-            description: `The reminder has been updated.`,
-          });
-          onOpenChange?.(false);
-        }).catch(err => {
-          toast({ variant: 'destructive', title: 'Error', description: err.message });
-        }).finally(() => setIsSubmitting(false));
-    }
+    }, 1000);
   }
 
   return (
@@ -175,7 +117,6 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-2 max-h-[70vh] overflow-y-auto [-ms-overflow-style:'none'] [scrollbar-width:'none'] [&::-webkit-scrollbar]:hidden">
             
-            {/* contact selector */}
             <FormField
               control={form.control}
               name="contactId"
@@ -199,7 +140,6 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
               )}
             />
 
-            {/* channel */}
             <FormField
               control={form.control}
               name="channel"
@@ -210,7 +150,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a channel" />
-                      </SelectTrigger>
+                      </Trigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="Email">Email</SelectItem>
@@ -223,7 +163,6 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
               )}
             />
 
-            {/* date/time */}
             <FormField
               control={form.control}
               name="scheduledAt"
@@ -276,7 +215,6 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
               )}
             />
 
-            {/* message */}
             <FormField
               control={form.control}
               name="message"
@@ -303,3 +241,5 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
     </Dialog>
   );
 }
+
+    

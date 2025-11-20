@@ -28,9 +28,8 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Package } from 'lucide-react';
 import React from 'react';
-import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { doc } from 'firebase/firestore';
+import { useAuth } from '@/firebase';
+import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 48 48" className="size-5">
@@ -52,7 +51,6 @@ const formSchema = z.object({
 export default function SignupPage() {
   const router = useRouter();
   const auth = useAuth();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = React.useState(false);
@@ -73,17 +71,8 @@ export default function SignupPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
-
-      const userProfile = {
-        id: user.uid,
-        displayName: values.name,
-        email: user.email,
-        subscriptionStatus: 'free',
-      };
+      await updateProfile(user, { displayName: values.name });
       
-      const userDocRef = doc(firestore, `users/${user.uid}`);
-      setDocumentNonBlocking(userDocRef, userProfile, { merge: true });
-
       toast({
         title: 'Account Created',
         description: "Welcome! We're redirecting you to the dashboard...",
@@ -104,18 +93,7 @@ export default function SignupPage() {
     setIsGoogleSubmitting(true);
     try {
       const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const user = userCredential.user;
-
-      const userProfile = {
-        id: user.uid,
-        displayName: user.displayName,
-        email: user.email,
-        subscriptionStatus: 'free',
-      };
-      
-      const userDocRef = doc(firestore, `users/${user.uid}`);
-      setDocumentNonBlocking(userDocRef, userProfile, { merge: true });
+      await signInWithPopup(auth, provider);
       
       toast({
         title: 'Account Created',
@@ -234,3 +212,5 @@ export default function SignupPage() {
     </Card>
   );
 }
+
+    

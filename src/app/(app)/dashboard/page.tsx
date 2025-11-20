@@ -14,38 +14,11 @@ import { RecentReminders } from './components/recent-reminders';
 import { Button } from '@/components/ui/button';
 import { AddContactDialog } from '../contacts/components/add-contact-dialog';
 import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
-import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where, orderBy, limit } from 'firebase/firestore';
-import type { Reminder, Contact } from '@/lib/types';
+import { useUser } from '@/firebase';
+import { mockContacts, mockReminders, mockHistory } from '@/lib/mock-data';
 
 export default function DashboardPage() {
-  const { firestore } = useFirebase();
   const { user } = useUser();
-
-  const contactsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'contacts'), where('userId', '==', user.uid));
-  }, [firestore, user]);
-
-  const remindersQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'reminders'), where('userId', '==', user.uid));
-  }, [firestore, user]);
-  
-  const upcomingRemindersQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(
-      collection(firestore, 'reminders'), 
-      where('userId', '==', user.uid),
-      where('status', '==', 'pending'), 
-      orderBy('scheduledAt', 'asc'), 
-      limit(5)
-    );
-  }, [firestore, user]);
-
-  const { data: contacts } = useCollection<Contact>(contactsQuery);
-  const { data: reminders } = useCollection<Reminder>(remindersQuery);
-  const { data: upcomingReminders } = useCollection<Reminder>(upcomingRemindersQuery);
   
   const remindersChartData = [
     { name: 'Jan', total: 0 }, { name: 'Feb', total: 0 }, { name: 'Mar', total: 0 },
@@ -54,15 +27,13 @@ export default function DashboardPage() {
     { name: 'Oct', total: 0 }, { name: 'Nov', total: 0 }, { name: 'Dec', total: 0 },
   ];
 
-  if(reminders) {
-    reminders.forEach(reminder => {
-      if (reminder.scheduledAt) {
-        const date = 'seconds' in reminder.scheduledAt ? new Date(reminder.scheduledAt.seconds * 1000) : new Date(reminder.scheduledAt);
-        const month = date.getMonth();
-        remindersChartData[month].total++;
-      }
-    });
-  }
+  mockReminders.forEach(reminder => {
+    if (reminder.scheduledAt) {
+      const date = new Date(reminder.scheduledAt);
+      const month = date.getMonth();
+      remindersChartData[month].total++;
+    }
+  });
 
 
   return (
@@ -99,7 +70,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{contacts?.length || 0}</div>
+            <div className="text-2xl font-bold">{mockContacts.length}</div>
             <p className="text-xs text-muted-foreground">All your managed contacts</p>
           </CardContent>
         </Card>
@@ -109,7 +80,7 @@ export default function DashboardPage() {
             <BellRing className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reminders?.length || 0}</div>
+            <div className="text-2xl font-bold">{mockReminders.length}</div>
             <p className="text-xs text-muted-foreground">All reminders scheduled</p>
           </CardContent>
         </Card>
@@ -119,7 +90,7 @@ export default function DashboardPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reminders?.filter(r => r.status === 'pending').length || 0}</div>
+            <div className="text-2xl font-bold">{mockReminders.filter(r => r.status === 'pending').length}</div>
             <p className="text-xs text-muted-foreground">Today, tomorrow, overdue</p>
           </CardContent>
         </Card>
@@ -129,8 +100,8 @@ export default function DashboardPage() {
             <LineChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">INR {reminders?.filter(r => r.status === 'paid').length || 0 * 100}</div>
-            <p className="text-xs text-muted-foreground">vs INR {reminders?.filter(r => r.status === 'pending').length || 0 * 50} pending</p>
+            <div className="text-2xl font-bold">INR {mockHistory.filter(r => r.status === 'paid').length * 100}</div>
+            <p className="text-xs text-muted-foreground">vs INR {mockReminders.filter(r => r.status === 'pending').length * 50} pending</p>
           </CardContent>
         </Card>
       </div>
@@ -155,10 +126,12 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentReminders reminders={upcomingReminders || []} />
+            <RecentReminders reminders={mockReminders.filter(r => r.status === 'pending')} />
           </CardContent>
         </Card>
       </div>
     </div>
   );
 }
+
+    

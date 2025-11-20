@@ -22,9 +22,6 @@ import { ScheduleReminderDialog } from './schedule-reminder-dialog';
 import { ViewReminderDialog } from './view-reminder-dialog';
 import { CancelReminderDialog } from './cancel-reminder-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Timestamp } from 'firebase/firestore';
-import { useFirebase, updateDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
 
 const channelIcons = {
   Email: Mail,
@@ -32,11 +29,11 @@ const channelIcons = {
   WhatsApp: Phone,
 };
 
-const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date | Timestamp }) => {
+const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date | string }) => {
     const [formattedDate, setFormattedDate] = React.useState('');
     const [relativeTime, setRelativeTime] = React.useState('');
     
-    const date = scheduledAt instanceof Timestamp ? scheduledAt.toDate() : scheduledAt;
+    const date = new Date(scheduledAt);
   
     React.useEffect(() => {
       setFormattedDate(format(date, 'MMM d, yyyy, p'));
@@ -125,27 +122,14 @@ export const columns: ColumnDef<Reminder>[] = [
     cell: ({ row }) => {
       const reminder = row.original;
       const { toast } = useToast();
-      const { firestore, user } = useFirebase();
       const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
 
       function handleMarkAsPaid() {
-        if (!firestore || !user) return;
-        const reminderDocRef = doc(firestore, 'reminders', reminder.id);
-        updateDocumentNonBlocking(reminderDocRef, { status: 'paid' })
-          .then(() => {
-            toast({
-              title: 'Payment Recorded',
-              description: `Reminder for ${reminder.contact.name} marked as paid.`,
-            });
-          })
-          .catch((error) => {
-            toast({
-              variant: 'destructive',
-              title: 'Error',
-              description: error.message,
-            });
-          });
+        toast({
+            title: 'Payment Recorded',
+            description: `Reminder for ${reminder.contact.name} marked as paid (mock).`,
+        });
       }
 
       return (
@@ -199,3 +183,5 @@ export const columns: ColumnDef<Reminder>[] = [
     },
   },
 ];
+
+    

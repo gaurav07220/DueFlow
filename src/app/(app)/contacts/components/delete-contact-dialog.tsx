@@ -14,9 +14,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
-import { useFirebase, deleteDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { useUser } from '@/firebase/provider';
 
 type DeleteContactDialogProps = {
   contactId: string;
@@ -25,28 +22,12 @@ type DeleteContactDialogProps = {
 
 export function DeleteContactDialog({ contactId, children }: DeleteContactDialogProps) {
   const { toast } = useToast();
-  const { firestore } = useFirebase();
-  const { user } = useUser();
 
   function handleDelete() {
-    if (!firestore || !user) return;
-    
-    const contactDocRef = doc(firestore, 'contacts', contactId);
-    
-    deleteDocumentNonBlocking(contactDocRef)
-      .then(() => {
-        toast({
-          title: 'Contact Deleted',
-          description: 'The contact has been successfully deleted.',
-        });
-      })
-      .catch((error: any) => {
-         toast({
-          variant: 'destructive',
-          title: 'Error Deleting Contact',
-          description: error.message,
-        });
-      });
+    toast({
+        title: 'Contact Deleted',
+        description: 'The contact has been successfully deleted (mock).',
+    });
   }
 
   return (
@@ -71,3 +52,5 @@ export function DeleteContactDialog({ contactId, children }: DeleteContactDialog
     </AlertDialog>
   );
 }
+
+    

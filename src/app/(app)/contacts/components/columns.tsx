@@ -20,7 +20,6 @@ import { MoreHorizontal, Edit, Trash } from 'lucide-react';
 import React from 'react';
 import { AddContactDialog } from './add-contact-dialog';
 import { DeleteContactDialog } from './delete-contact-dialog';
-import { Timestamp } from 'firebase/firestore';
 
 export const columns: ColumnDef<Contact>[] = [
   {
@@ -68,7 +67,7 @@ export const columns: ColumnDef<Contact>[] = [
     accessorKey: 'lastContacted',
     header: 'Last Contacted',
     cell: ({ row }) => {
-        const date = row.original.lastContacted instanceof Timestamp ? row.original.lastContacted.toDate() : row.original.lastContacted;
+        const date = new Date(row.original.lastContacted);
         return (
             <div className="text-muted-foreground">
                 {formatDistanceToNow(date, { addSuffix: true })}
@@ -80,7 +79,7 @@ export const columns: ColumnDef<Contact>[] = [
     accessorKey: 'createdAt',
     header: 'Created At',
     cell: ({ row }) => {
-        const date = row.original.createdAt instanceof Timestamp ? row.original.createdAt.toDate() : row.original.createdAt;
+        const date = new Date(row.original.createdAt);
         return (
             <div className="text-muted-foreground">
                 {format(date, 'MMM d, yyyy')}
@@ -92,7 +91,6 @@ export const columns: ColumnDef<Contact>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const contact = row.original;
-      const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -122,3 +120,5 @@ export const columns: ColumnDef<Contact>[] = [
     },
   },
 ];
+
+    

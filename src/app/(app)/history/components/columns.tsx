@@ -14,7 +14,6 @@ import { cn } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { Eye, Mail, MessageSquare, MoreHorizontal, Phone, CheckCheck, Send, AlertTriangle, CornerDownLeft, CircleDollarSign, Info } from 'lucide-react';
-import { Timestamp } from 'firebase/firestore';
 
 const channelIcons = {
   Email: Mail,
@@ -58,7 +57,7 @@ export const columns: ColumnDef<HistoryLog>[] = [
     accessorKey: 'sentAt',
     header: 'Date',
     cell: ({ row }) => {
-        const date = row.original.sentAt instanceof Timestamp ? row.original.sentAt.toDate() : row.original.sentAt;
+        const date = new Date(row.original.sentAt);
         return (
             <div className="text-muted-foreground">
                 {format(date, 'MMM d, yyyy, p')}
@@ -111,3 +110,5 @@ export const columns: ColumnDef<HistoryLog>[] = [
     },
   },
 ];
+
+    
