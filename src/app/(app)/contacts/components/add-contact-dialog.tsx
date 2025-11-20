@@ -26,7 +26,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import type { Contact } from '@/lib/types';
-import { useUser } from '@/firebase/provider';
+import { useFirestore, useUser } from '@/firebase';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection } from 'firebase/firestore';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -47,6 +49,7 @@ export function AddContactDialog({
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { user } = useUser();
+  const firestore = useFirestore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,22 +83,33 @@ export function AddContactDialog({
     
     setIsSubmitting(true);
     
-    setTimeout(() => {
-        if (mode === 'add') {
-            toast({
-                title: 'Contact Added',
-                description: `${values.name} has been successfully added (mock).`,
-            });
-        } else {
-            toast({
-                title: 'Contact Updated',
-                description: `${values.name} has been successfully updated (mock).`,
-            });
-        }
-        form.reset();
-        setOpen(false);
-        setIsSubmitting(false);
-    }, 1000);
+    const contactsCollection = collection(firestore, 'contacts');
+    
+    if (mode === 'add') {
+      const newContact = {
+        ...values,
+        userId: user.uid,
+        createdAt: new Date().toISOString(),
+        lastContacted: new Date().toISOString(),
+        status: 'active',
+        avatarUrl: `https://i.pravatar.cc/150?u=${values.name}`,
+      };
+      addDocumentNonBlocking(contactsCollection, newContact);
+      toast({
+        title: 'Contact Added',
+        description: `${values.name} has been successfully added.`,
+      });
+    } else {
+        // Mock update for now
+        toast({
+            title: 'Contact Updated',
+            description: `${values.name} has been successfully updated (mock).`,
+        });
+    }
+    
+    form.reset();
+    setOpen(false);
+    setIsSubmitting(false);
   }
 
   return (
@@ -158,5 +172,3 @@ export function AddContactDialog({
     </Dialog>
   );
 }
-
-    

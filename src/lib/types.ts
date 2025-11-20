@@ -11,6 +11,7 @@ export type NavItem = {
 
 export type Contact = {
   id: string;
+  userId: string;
   name: string;
   email: string;
   phone: string;
@@ -22,7 +23,9 @@ export type Contact = {
 
 export type Reminder = {
   id: string;
+  userId: string;
   contact: Pick<Contact, 'id' | 'name' | 'avatarUrl'>;
+  contactId: string;
   channel: 'Email' | 'SMS' | 'WhatsApp';
   message: string;
   scheduledAt: string;

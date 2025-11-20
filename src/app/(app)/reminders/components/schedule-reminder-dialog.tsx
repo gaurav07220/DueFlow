@@ -34,6 +34,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import type { Reminder } from '@/lib/types';
 import { mockContacts } from '@/lib/mock-data';
+import { useFirestore, useUser } from '@/firebase';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection } from 'firebase/firestore';
 
 const formSchema = z.object({
   contactId: z.string({ required_error: 'Please select a contact.' }),
@@ -56,6 +59,8 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const contacts = mockContacts;
   const isLoadingContacts = false;
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
@@ -94,24 +99,40 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   }, [reminder, mode, form, open]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if(!user) return;
     setIsSubmitting(true);
+
+    const remindersCollection = collection(firestore, 'reminders');
+    const selectedContact = contacts.find(c => c.id === values.contactId);
     
-    setTimeout(() => {
-      if (mode === 'add') {
-        toast({
-          title: 'Reminder Scheduled',
-          description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')} (mock).`,
-        });
-      } else {
-        toast({
-          title: 'Reminder Updated',
-          description: `The reminder has been updated (mock).`,
-        });
-      }
-      form.reset();
-      setOpen(false);
-      setIsSubmitting(false);
-    }, 1000);
+    if (mode === 'add') {
+      const newReminder = {
+        ...values,
+        userId: user.uid,
+        scheduledAt: values.scheduledAt.toISOString(),
+        status: 'pending',
+        contact: {
+            id: selectedContact?.id || '',
+            name: selectedContact?.name || '',
+            avatarUrl: selectedContact?.avatarUrl || ''
+        }
+      };
+      addDocumentNonBlocking(remindersCollection, newReminder);
+      toast({
+        title: 'Reminder Scheduled',
+        description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
+      });
+    } else {
+      // Mock update for now
+      toast({
+        title: 'Reminder Updated',
+        description: `The reminder has been updated (mock).`,
+      });
+    }
+
+    form.reset();
+    setOpen(false);
+    setIsSubmitting(false);
   }
 
   return (
