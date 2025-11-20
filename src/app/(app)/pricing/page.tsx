@@ -1,11 +1,15 @@
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { subscriptionPlans } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import React from 'react';
 
 export default function PricingPage() {
+  const [selectedPlan, setSelectedPlan] = React.useState('Growth');
+
   return (
     <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div className="text-center">
@@ -19,8 +23,12 @@ export default function PricingPage() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
         {subscriptionPlans.map((plan) => (
-          <Card key={plan.name} className={cn('flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1', plan.highlighted && 'border-primary ring-2 ring-primary')}>
-            <CardHeader className={cn(plan.highlighted && 'bg-primary/5')}>
+          <Card 
+            key={plan.name} 
+            onClick={() => setSelectedPlan(plan.name)}
+            className={cn('flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer', selectedPlan === plan.name && 'border-primary ring-2 ring-primary')}
+          >
+            <CardHeader className={cn(selectedPlan === plan.name && 'bg-primary/5')}>
               <CardTitle className='font-headline'>{plan.name}</CardTitle>
               <CardDescription>
                 <span className="text-3xl font-bold text-foreground">{plan.price}</span>
@@ -38,7 +46,7 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" variant={plan.highlighted ? 'default' : 'outline'}>
+              <Button className="w-full" variant={selectedPlan === plan.name ? 'default' : 'outline'}>
                 {plan.cta}
               </Button>
             </CardFooter>
