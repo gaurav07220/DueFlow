@@ -16,7 +16,6 @@ import { AddContactDialog } from '../contacts/components/add-contact-dialog';
 import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { mockHistory } from '@/lib/mock-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Reminder } from '@/lib/types';
 
@@ -53,6 +52,7 @@ export default function DashboardPage() {
 
   const upcomingReminders = reminders?.filter(r => new Date(r.scheduledAt) >= new Date() && r.status === 'pending').sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()) || [];
   const isLoading = isLoadingContacts || isLoadingReminders;
+  const paidRemindersCount = reminders?.filter(r => r.status === 'paid').length || 0;
 
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
@@ -118,7 +118,7 @@ export default function DashboardPage() {
             <LineChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">INR {mockHistory.filter(r => r.status === 'paid').length * 100}</div>
+            {isLoading ? <Skeleton className='h-8 w-1/4' /> : <div className="text-2xl font-bold">INR {paidRemindersCount * 100}</div> }
             <p className="text-xs text-muted-foreground">vs INR {upcomingReminders.length * 50} pending</p>
           </CardContent>
         </Card>
