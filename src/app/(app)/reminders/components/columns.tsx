@@ -29,9 +29,11 @@ const channelIcons = {
 };
 
 const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date }) => {
+    const [formattedDate, setFormattedDate] = React.useState('');
     const [relativeTime, setRelativeTime] = React.useState('');
   
     React.useEffect(() => {
+      setFormattedDate(format(scheduledAt, 'MMM d, yyyy, p'));
       setRelativeTime(formatDistanceToNow(scheduledAt, { addSuffix: true }));
        const interval = setInterval(() => {
         setRelativeTime(formatDistanceToNow(scheduledAt, { addSuffix: true }));
@@ -41,7 +43,7 @@ const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date }) => {
   
     return (
       <div>
-        <div className="font-medium">{format(scheduledAt, 'MMM d, yyyy, p')}</div>
+        {formattedDate ? <div className="font-medium">{formattedDate}</div> : <div className="font-medium">{format(new Date(), 'MMM d, yyyy, p')}</div>}
         {relativeTime && <div className="text-xs text-muted-foreground">{relativeTime}</div>}
       </div>
     );
