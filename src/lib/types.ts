@@ -1,5 +1,6 @@
 
 import type { LucideIcon } from "lucide-react";
+import type { Timestamp } from "firebase/firestore";
 
 export type NavItem = {
   title: string;
@@ -24,8 +25,8 @@ export type Contact = {
   email: string;
   phone: string;
   status: 'active' | 'inactive';
-  lastContacted: Date;
-  createdAt: Date;
+  lastContacted: Date | Timestamp;
+  createdAt: Date | Timestamp;
   avatarUrl: string;
 };
 
@@ -34,7 +35,7 @@ export type Reminder = {
   contact: Pick<Contact, 'id' | 'name' | 'avatarUrl'>;
   channel: 'Email' | 'SMS' | 'WhatsApp';
   message: string;
-  scheduledAt: Date;
+  scheduledAt: Date | Timestamp;
   status: 'pending' | 'sent' | 'failed' | 'paid';
 };
 
@@ -43,7 +44,7 @@ export type HistoryLog = {
   reminderId: string;
   contactName: string;
   channel: 'Email' | 'SMS' | 'WhatsApp' | 'System';
-  sentAt: Date;
+  sentAt: Date | Timestamp;
   status: 'delivered' | 'seen' | 'replied' | 'ignored' | 'failed' | 'paid';
   details: string;
 };

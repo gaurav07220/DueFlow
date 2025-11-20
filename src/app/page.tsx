@@ -1,9 +1,33 @@
-import { redirect } from 'next/navigation';
+
+'use client';
+
+import { redirect, usePathname } from 'next/navigation';
+import { useUser } from '@/firebase';
+import { useEffect } from 'react';
 
 export default function RootPage() {
-  // In a real app, you'd have logic here to check for an auth token.
-  // If the user is not logged in, you would redirect to '/login'.
-  // If they are logged in, you would redirect to '/dashboard'.
-  // For this MVP, we'll assume the user is logged in and send them to the dashboard.
-  redirect('/dashboard');
+  const { user, isUserLoading } = useUser();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!isUserLoading) {
+      if (user) {
+        if (pathname === '/' || pathname === '/login' || pathname === '/signup') {
+          redirect('/dashboard');
+        }
+      } else {
+        if (pathname !== '/login' && pathname !== '/signup') {
+          redirect('/login');
+        }
+      }
+    }
+  }, [user, isUserLoading, pathname]);
+
+  if (isUserLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  // This is a guard; actual rendering happens in layouts/pages
+  // based on the redirection logic above.
+  return null;
 }

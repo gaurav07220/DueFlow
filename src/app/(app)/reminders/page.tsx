@@ -1,11 +1,27 @@
+
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import { mockReminders } from '@/lib/mock-data';
 import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { ScheduleReminderDialog } from './components/schedule-reminder-dialog';
+import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import type { Reminder } from '@/lib/types';
+
 
 export default function RemindersPage() {
+  const { firestore } = useFirebase();
+  const { user } = useUser();
+
+  const remindersQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'users', user.uid, 'reminders'), orderBy('scheduledAt', 'desc'));
+  }, [firestore, user]);
+
+  const { data: reminders, isLoading } = useCollection<Reminder>(remindersQuery);
+
   return (
     <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -25,7 +41,7 @@ export default function RemindersPage() {
         </ScheduleReminderDialog>
       </div>
 
-      <DataTable columns={columns} data={mockReminders} />
+      <DataTable columns={columns} data={reminders || []} isLoading={isLoading} />
     </div>
   );
 }

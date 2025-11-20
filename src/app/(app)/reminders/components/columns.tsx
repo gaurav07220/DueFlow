@@ -22,6 +22,9 @@ import { ScheduleReminderDialog } from './schedule-reminder-dialog';
 import { ViewReminderDialog } from './view-reminder-dialog';
 import { CancelReminderDialog } from './cancel-reminder-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Timestamp } from 'firebase/firestore';
+import { useFirebase, updateDocumentNonBlocking } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 const channelIcons = {
   Email: Mail,
@@ -29,18 +32,20 @@ const channelIcons = {
   WhatsApp: Phone,
 };
 
-const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date }) => {
+const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date | Timestamp }) => {
     const [formattedDate, setFormattedDate] = React.useState('');
     const [relativeTime, setRelativeTime] = React.useState('');
+    
+    const date = scheduledAt instanceof Timestamp ? scheduledAt.toDate() : scheduledAt;
   
     React.useEffect(() => {
-      setFormattedDate(format(scheduledAt, 'MMM d, yyyy, p'));
-      setRelativeTime(formatDistanceToNow(scheduledAt, { addSuffix: true }));
+      setFormattedDate(format(date, 'MMM d, yyyy, p'));
+      setRelativeTime(formatDistanceToNow(date, { addSuffix: true }));
        const interval = setInterval(() => {
-        setRelativeTime(formatDistanceToNow(scheduledAt, { addSuffix: true }));
+        setRelativeTime(formatDistanceToNow(date, { addSuffix: true }));
       }, 60000);
       return () => clearInterval(interval);
-    }, [scheduledAt]);
+    }, [date]);
   
     return (
       <div>
@@ -120,17 +125,27 @@ export const columns: ColumnDef<Reminder>[] = [
     cell: ({ row }) => {
       const reminder = row.original;
       const { toast } = useToast();
+      const { firestore, user } = useFirebase();
       const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
 
       function handleMarkAsPaid() {
-        console.log('Marking reminder as paid:', reminder.id);
-        // Here you would typically update the state or call an API
-        // For now, we'll just show a toast
-        toast({
-          title: 'Payment Recorded',
-          description: `Reminder for ${reminder.contact.name} marked as paid.`,
-        });
+        if (!firestore || !user) return;
+        const reminderDocRef = doc(firestore, 'users', user.uid, 'reminders', reminder.id);
+        updateDocumentNonBlocking(reminderDocRef, { status: 'paid' })
+          .then(() => {
+            toast({
+              title: 'Payment Recorded',
+              description: `Reminder for ${reminder.contact.name} marked as paid.`,
+            });
+          })
+          .catch((error) => {
+            toast({
+              variant: 'destructive',
+              title: 'Error',
+              description: error.message,
+            });
+          });
       }
 
       return (

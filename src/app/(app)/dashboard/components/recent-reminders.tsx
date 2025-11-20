@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -6,23 +7,22 @@ import type { Reminder } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
+import { Timestamp } from 'firebase/firestore';
 
-const useRelativeTime = (date: Date) => {
+const useRelativeTime = (date: Date | Timestamp) => {
   const [relativeTime, setRelativeTime] = useState('');
+  const actualDate = date instanceof Timestamp ? date.toDate() : date;
 
   useEffect(() => {
-    // This effect runs only on the client, after hydration
-    setRelativeTime(formatDistanceToNow(date, { addSuffix: true }));
+    setRelativeTime(formatDistanceToNow(actualDate, { addSuffix: true }));
 
-    // Optional: Set up an interval to update the time periodically
     const interval = setInterval(() => {
-      setRelativeTime(formatDistanceToNow(date, { addSuffix: true }));
+      setRelativeTime(formatDistanceToNow(actualDate, { addSuffix: true }));
     }, 60000); // every minute
 
     return () => clearInterval(interval);
-  }, [date]);
+  }, [actualDate]);
 
-  // Render a placeholder or nothing on the server
   return relativeTime;
 };
 
@@ -62,6 +62,9 @@ type RecentRemindersProps = {
 };
 
 export function RecentReminders({ reminders }: RecentRemindersProps) {
+  if (!reminders.length) {
+    return <p className="text-sm text-muted-foreground text-center">No upcoming reminders.</p>
+  }
   return (
     <div className="space-y-4">
       {reminders.map((reminder) => (

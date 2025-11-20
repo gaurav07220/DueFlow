@@ -28,6 +28,8 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Package } from 'lucide-react';
 import React from 'react';
+import { useAuth } from '@/firebase';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 48 48" className="size-5">
@@ -45,6 +47,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = React.useState(false);
@@ -57,30 +60,45 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    console.log(values);
-
-    setTimeout(() => {
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
         title: 'Login Successful',
         description: "Welcome back! Redirecting you to the dashboard...",
       });
       router.push('/dashboard');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: error.message,
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   }
 
-  function onGoogleSignIn() {
+  async function onGoogleSignIn() {
     setIsGoogleSubmitting(true);
-    toast({
-      title: 'Signing in with Google...',
-      description: "You'll be redirected shortly.",
-    });
-    setTimeout(() => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      toast({
+        title: 'Sign-in Successful',
+        description: "Welcome! We're redirecting you to the dashboard...",
+      });
       router.push('/dashboard');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Google Sign-in Failed',
+        description: error.message,
+      });
+    } finally {
       setIsGoogleSubmitting(false);
-    }, 1000);
+    }
   }
 
   return (

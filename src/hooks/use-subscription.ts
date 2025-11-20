@@ -1,14 +1,31 @@
-import { useState } from 'react';
-import { mockUser } from '@/lib/mock-data';
-import type { User } from '@/lib/types';
 
-// This is a mock hook. In a real app, you would fetch the user's subscription
-// status from your backend or a service like RevenueCat.
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useDoc, useFirebase, useUser, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+
 export function useSubscription() {
-  const [subscription, setSubscription] = useState<User['subscription']>(mockUser.subscription);
+  const { firestore } = useFirebase();
+  const { user } = useUser();
+  const [subscription, setSubscription] = useState<'free' | 'pro' | 'enterprise' | null>(null);
+
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userData } = useDoc<{subscriptionStatus: 'free' | 'pro' | 'enterprise'}>(userDocRef);
+
+  useEffect(() => {
+    if (userData) {
+      setSubscription(userData.subscriptionStatus);
+    }
+  }, [userData]);
+
 
   const isPro = subscription === 'pro' || subscription === 'enterprise';
   const isEnterprise = subscription === 'enterprise';
 
-  return { subscription, isPro, isEnterprise, setSubscription };
+  return { subscription, isPro, isEnterprise };
 }

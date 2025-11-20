@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +26,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import type { Contact } from '@/lib/types';
+import { useFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { useUser } from '@/firebase/provider';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -44,6 +48,8 @@ export function AddContactDialog({
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { firestore } = useFirebase();
+  const { user } = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -72,22 +78,58 @@ export function AddContactDialog({
     }
   }, [open, form, mode, contact]);
 
-
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    console.log(values);
+    if (!firestore || !user) return;
     
-    setTimeout(() => {
-      toast({
-        title: mode === 'add' ? 'Contact Added' : 'Contact Updated',
-        description: `${values.name} has been successfully ${mode === 'add' ? 'added' : 'updated'}.`,
-      });
-      if (mode === 'add') {
-        form.reset();
-      }
-      setOpen(false);
-      setIsSubmitting(false);
-    }, 1000);
+    setIsSubmitting(true);
+    
+    const newContactData = {
+      ...values,
+      userId: user.uid,
+      createdAt: new Date(),
+      lastContacted: new Date(),
+      status: 'active',
+      avatarUrl: `https://i.pravatar.cc/150?u=${Math.random()}`
+    };
+
+    if (mode === 'add') {
+      const contactsColRef = collection(firestore, 'users', user.uid, 'contacts');
+      addDocumentNonBlocking(contactsColRef, newContactData)
+        .then(() => {
+          toast({
+            title: 'Contact Added',
+            description: `${values.name} has been successfully added.`,
+          });
+          form.reset();
+          setOpen(false);
+        })
+        .catch(err => {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: `There was an error adding the contact: ${err.message}`,
+          });
+        })
+        .finally(() => setIsSubmitting(false));
+    } else if (contact) {
+      const contactDocRef = doc(firestore, 'users', user.uid, 'contacts', contact.id);
+      updateDocumentNonBlocking(contactDocRef, values)
+        .then(() => {
+          toast({
+            title: 'Contact Updated',
+            description: `${values.name} has been successfully updated.`,
+          });
+          setOpen(false);
+        })
+        .catch(err => {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: `There was an error updating the contact: ${err.message}`,
+          });
+        })
+        .finally(() => setIsSubmitting(false));
+    }
   }
 
   return (

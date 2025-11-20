@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -27,6 +28,9 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Package } from 'lucide-react';
 import React from 'react';
+import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 48 48" className="size-5">
@@ -47,6 +51,8 @@ const formSchema = z.object({
 
 export default function SignupPage() {
   const router = useRouter();
+  const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = React.useState(false);
@@ -62,29 +68,69 @@ export default function SignupPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    console.log(values);
-    setTimeout(() => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      const userProfile = {
+        id: user.uid,
+        displayName: values.name,
+        email: user.email,
+        subscriptionStatus: 'free',
+      };
+      
+      const userDocRef = doc(firestore, `users/${user.uid}`);
+      setDocumentNonBlocking(userDocRef, userProfile, { merge: true });
+
       toast({
         title: 'Account Created',
         description: "Welcome! We're redirecting you to the dashboard...",
       });
       router.push('/dashboard');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Sign-up Failed',
+        description: error.message,
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   }
   
-  function onGoogleSignUp() {
+  async function onGoogleSignUp() {
     setIsGoogleSubmitting(true);
-    toast({
-      title: 'Creating account with Google...',
-      description: "You'll be redirected shortly.",
-    });
-     setTimeout(() => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+
+      const userProfile = {
+        id: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        subscriptionStatus: 'free',
+      };
+      
+      const userDocRef = doc(firestore, `users/${user.uid}`);
+      setDocumentNonBlocking(userDocRef, userProfile, { merge: true });
+      
+      toast({
+        title: 'Account Created',
+        description: "Welcome! We're redirecting you to the dashboard...",
+      });
       router.push('/dashboard');
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Google Sign-up Failed',
+        description: error.message,
+      });
+    } finally {
       setIsGoogleSubmitting(false);
-    }, 1000);
+    }
   }
 
   return (

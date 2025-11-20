@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -15,26 +16,19 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table';
 import { Skeleton } from '../ui/skeleton';
-import { useEffect, useState } from 'react';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500); // Simulate loading delay
-    return () => clearTimeout(timer);
-  }, []);
-
+  
   const table = useReactTable({
     data,
     columns,

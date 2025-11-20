@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -19,6 +20,7 @@ import { MoreHorizontal, Edit, Trash } from 'lucide-react';
 import React from 'react';
 import { AddContactDialog } from './add-contact-dialog';
 import { DeleteContactDialog } from './delete-contact-dialog';
+import { Timestamp } from 'firebase/firestore';
 
 export const columns: ColumnDef<Contact>[] = [
   {
@@ -65,20 +67,26 @@ export const columns: ColumnDef<Contact>[] = [
   {
     accessorKey: 'lastContacted',
     header: 'Last Contacted',
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">
-        {formatDistanceToNow(row.original.lastContacted, { addSuffix: true })}
-      </div>
-    ),
+    cell: ({ row }) => {
+        const date = row.original.lastContacted instanceof Timestamp ? row.original.lastContacted.toDate() : row.original.lastContacted;
+        return (
+            <div className="text-muted-foreground">
+                {formatDistanceToNow(date, { addSuffix: true })}
+            </div>
+        )
+    },
   },
   {
     accessorKey: 'createdAt',
     header: 'Created At',
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">
-        {format(row.original.createdAt, 'MMM d, yyyy')}
-      </div>
-    ),
+    cell: ({ row }) => {
+        const date = row.original.createdAt instanceof Timestamp ? row.original.createdAt.toDate() : row.original.createdAt;
+        return (
+            <div className="text-muted-foreground">
+                {format(date, 'MMM d, yyyy')}
+            </div>
+        )
+    },
   },
   {
     id: 'actions',
@@ -95,21 +103,19 @@ export const columns: ColumnDef<Contact>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <AddContactDialog contact={contact} mode='edit' open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <AddContactDialog contact={contact} mode='edit'>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   <Edit className="mr-2 h-4 w-4" />
                   <span>Edit contact</span>
               </DropdownMenuItem>
             </AddContactDialog>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <DeleteContactDialog contactId={contact.id}>
-                <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-destructive/10 focus:text-destructive data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+            <DeleteContactDialog contactId={contact.id}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
                   <Trash  className="mr-2 h-4 w-4" />
                   <span>Delete contact</span>
-                </button>
-              </DeleteContactDialog>
-            </DropdownMenuItem>
+                </DropdownMenuItem>
+            </DeleteContactDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       );

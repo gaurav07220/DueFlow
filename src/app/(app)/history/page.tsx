@@ -1,8 +1,28 @@
-import { mockHistory } from '@/lib/mock-data';
+
+'use client';
+
 import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
+import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
+import type { HistoryLog } from '@/lib/types';
+import { collection, query, orderBy } from 'firebase/firestore';
+
 
 export default function HistoryPage() {
+  const { firestore } = useFirebase();
+  const { user } = useUser();
+
+  const historyQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    // Note: This assumes a top-level historyLogs collection which might not be ideal.
+    // A better structure would be /users/{userId}/historyLogs
+    // For now, we query all and filter client-side, which is inefficient and insecure.
+    // This should be updated with proper security rules and queries.
+    return query(collection(firestore, 'users', user.uid, 'historyLogs'), orderBy('sentAt', 'desc'));
+  }, [firestore, user]);
+
+  const { data: history, isLoading } = useCollection<HistoryLog>(historyQuery);
+
   return (
     <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -16,7 +36,7 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <DataTable columns={columns} data={mockHistory} />
+      <DataTable columns={columns} data={history || []} isLoading={isLoading}/>
     </div>
   );
 }
