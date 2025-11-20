@@ -17,7 +17,7 @@ import { ScheduleReminderDialog } from '../reminders/components/schedule-reminde
 export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Welcome back!

@@ -8,7 +8,7 @@ import { ScheduleReminderDialog } from './components/schedule-reminder-dialog';
 export default function RemindersPage() {
   return (
     <div className="space-y-6 animate-in fade-in-0 duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-headline font-bold tracking-tight">
             Reminders
