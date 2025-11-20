@@ -6,7 +6,7 @@ import { Check } from 'lucide-react';
 
 export default function PricingPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div className="text-center">
         <h1 className="text-3xl font-headline font-bold tracking-tight">
           Find the perfect plan
@@ -18,7 +18,7 @@ export default function PricingPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
         {subscriptionPlans.map((plan) => (
-          <Card key={plan.name} className={cn('flex flex-col', plan.highlighted && 'border-primary ring-2 ring-primary')}>
+          <Card key={plan.name} className={cn('flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1', plan.highlighted && 'border-primary ring-2 ring-primary')}>
             <CardHeader className={cn(plan.highlighted && 'bg-primary/5')}>
               <CardTitle className='font-headline'>{plan.name}</CardTitle>
               <CardDescription>

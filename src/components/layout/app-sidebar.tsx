@@ -49,7 +49,7 @@ export function AppSidebar() {
                   variant="default"
                   className={cn(
                     'w-full',
-                    pathname === item.href && 'bg-primary/10 text-primary hover:bg-primary/20'
+                    pathname === item.href && 'bg-sidebar-accent text-sidebar-accent-foreground'
                   )}
                 >
                   <item.icon className="h-4 w-4" />
@@ -61,14 +61,14 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <div className="flex items-center gap-3 rounded-md p-2 hover:bg-secondary">
+        <div className="flex items-center gap-3 rounded-md p-2 hover:bg-sidebar-accent">
           <Avatar className="h-9 w-9">
             <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} />
             <AvatarFallback>{mockUser.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col text-sm truncate">
-            <span className="font-semibold text-foreground">{mockUser.name}</span>
-            <span className="text-muted-foreground">{mockUser.email}</span>
+            <span className="font-semibold text-sidebar-foreground">{mockUser.name}</span>
+            <span className="text-sidebar-foreground/70">{mockUser.email}</span>
           </div>
         </div>
       </SidebarFooter>

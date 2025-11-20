@@ -7,7 +7,7 @@ import { AddContactDialog } from './components/add-contact-dialog';
 
 export default function ContactsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-headline font-bold tracking-tight">

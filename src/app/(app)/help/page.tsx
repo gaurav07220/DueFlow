@@ -25,7 +25,7 @@ const faqs = [
 
 export default function HelpPage() {
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6 max-w-3xl mx-auto animate-in fade-in-0 duration-500">
       <div className="text-center">
         <h1 className="text-3xl font-headline font-bold tracking-tight">
           Help & Support
