@@ -1,0 +1,242 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the FollowPilot application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User's display name."
+        },
+        "subscriptionStatus": {
+          "type": "string",
+          "description": "The current subscription status of the user (e.g., active, inactive)."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "displayName",
+        "subscriptionStatus"
+      ]
+    },
+    "Contact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Contact",
+      "type": "object",
+      "description": "Represents a contact or lead that the user is following up with.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the contact entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Contact)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the contact."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Phone number of the contact."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the contact.",
+          "format": "email"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "phoneNumber"
+      ]
+    },
+    "Reminder": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Reminder",
+      "type": "object",
+      "description": "Represents a scheduled reminder for a contact.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the reminder entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Reminder)"
+        },
+        "contactId": {
+          "type": "string",
+          "description": "Reference to Contact. (Relationship: Contact 1:N Reminder)"
+        },
+        "scheduledTime": {
+          "type": "string",
+          "description": "Date and time when the reminder should be sent.",
+          "format": "date-time"
+        },
+        "message": {
+          "type": "string",
+          "description": "The message to be sent as a reminder."
+        },
+        "channel": {
+          "type": "string",
+          "description": "The channel through which the reminder will be sent (e.g., WhatsApp, SMS, Email)."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the reminder (e.g., pending, sent, seen, replied, ignored)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "contactId",
+        "scheduledTime",
+        "message",
+        "channel",
+        "status"
+      ]
+    },
+    "HistoryLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HistoryLog",
+      "type": "object",
+      "description": "Represents a historical log of reminders delivered.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the history log entry."
+        },
+        "reminderId": {
+          "type": "string",
+          "description": "Reference to Reminder. (Relationship: Reminder 1:1 HistoryLog)"
+        },
+        "sentTime": {
+          "type": "string",
+          "description": "Timestamp of when the reminder was actually sent.",
+          "format": "date-time"
+        },
+        "deliveryStatus": {
+          "type": "string",
+          "description": "Delivery status from the provider (e.g., sent, delivered, failed)."
+        },
+        "providerResponse": {
+          "type": "string",
+          "description": "The raw response from the messaging provider (e.g., Twilio, SendGrid)."
+        }
+      },
+      "required": [
+        "id",
+        "reminderId",
+        "sentTime",
+        "deliveryStatus"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/contacts/{contactId}",
+        "definition": {
+          "entityName": "Contact",
+          "schema": {
+            "$ref": "#/backend/entities/Contact"
+          },
+          "description": "Stores contact information for a specific user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "contactId",
+              "description": "The unique identifier of the contact."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/reminders/{reminderId}",
+        "definition": {
+          "entityName": "Reminder",
+          "schema": {
+            "$ref": "#/backend/entities/Reminder"
+          },
+          "description": "Stores reminder information for a specific user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "reminderId",
+              "description": "The unique identifier of the reminder."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/reminders/{reminderId}/historyLogs/{historyLogId}",
+        "definition": {
+          "entityName": "HistoryLog",
+          "schema": {
+            "$ref": "#/backend/entities/HistoryLog"
+          },
+          "description": "Stores history log information for a specific reminder of a specific user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "reminderId",
+              "description": "The unique identifier of the reminder."
+            },
+            {
+              "name": "historyLogId",
+              "description": "The unique identifier of the history log."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the FollowPilot application.  Path-based ownership is used for user-specific data (Contacts, Reminders, HistoryLogs) under the `/users/{userId}` path.  This avoids hierarchical authorization dependencies and enables atomic operations. The structure supports QAPs by segregating user data, and enforcing strict, semantic naming conventions for increased debuggability.\n\nSpecifically, authorization independence is achieved by ensuring that all data access is controlled via path-based ownership (`/users/{userId}/...`). All collections belonging to a User will be stored under the User's ID, so access is granted by checking the `request.auth.uid` against the `userId` path parameter. This removes the need for `get()` calls in security rules, as the user ID is directly available in the path. This approach aligns with the principle of Authorization Independence, improving security and performance.\n\nThe structure also supports required QAPs via structural segregation. Each user's data is isolated under their respective `/users/{userId}` collection. This ensures that listing contacts, reminders, or history logs is secure, as the rules only need to verify the `request.auth.uid` against the `userId` parameter. This prevents unauthorized access to other users' data, satisfying the QAPs requirement that 'Rules are not Filters'."
+  }
+}

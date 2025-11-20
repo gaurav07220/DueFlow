@@ -1,0 +1,169 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict, user-centric security model. All user-generated data,
+ * including contacts, reminders, and history logs, is owned by and accessible only to the user who created it.
+ * Unauthorized access and data leakage between users are strictly prohibited.
+ *
+ * Data Structure: The entire data model is hierarchical, originating from the top-level `/users` collection.
+ * Each user's data is stored in subcollections under their unique user ID (`/users/{userId}/...`). This
+ * structure is fundamental to the security model, as ownership is determined by the document's path.
+ *
+ * Key Security Decisions:
+ * - User Enumeration is Disabled: Listing the top-level `/users` collection is disallowed to protect user privacy.
+ * - Strict Ownership: A user can only read, write, or delete data located within their own document tree.
+ *   There is no concept of shared or public data.
+ * - Path-Based Security: All authorization checks rely on the `userId` present in the document path, making
+ *   the rules fast, efficient, and easy to understand without needing costly `get()` calls to other documents.
+ * - Relational Integrity: On document creation, rules validate that internal ownership fields (e.g., a `userId`
+ *   property within a 'contact' document) correctly match the user ID from the path, ensuring data consistency.
+ *   These ownership fields are enforced as immutable on update.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the primary function for enforcing data ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if a document exists AND the authenticated user is the owner.
+     * Used for safe update and delete operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates that the user document's internal ID matches the document path on creation.
+     */
+    function hasValidUserDataOnCreate(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Ensures the user document's internal ID is immutable on update.
+     */
+    function isUserDataImmutableOnUpdate() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates that the contact's internal userId reference matches the document path on creation.
+     */
+    function hasValidContactDataOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Ensures the contact's internal userId reference is immutable on update.
+     */
+    function isContactDataImmutableOnUpdate() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    /**
+     * Validates that the reminder's internal userId reference matches the document path on creation.
+     */
+    function hasValidReminderDataOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+    
+    /**
+     * Ensures the reminder's internal userId reference is immutable on update.
+     */
+    function isReminderDataImmutableOnUpdate() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+    
+
+    // ------------------------------------------------------------------------
+    // Collection Rules
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents.
+     * @path /users/{userId}
+     * @allow (get) An authenticated user reads their own profile: `auth.uid == 'user_123'`, `get /users/user_123`
+     * @allow (create) A new user creates their own profile document: `auth.uid == 'user_123'`, `create /users/user_123`
+     * @deny (list) Any user, authenticated or not, tries to list all users: `list /users`
+     * @deny (get) An authenticated user tries to read another user's profile: `auth.uid == 'user_123'`, `get /users/user_456`
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && hasValidUserDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isUserDataImmutableOnUpdate();
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Manages a user's private list of contacts.
+       * @path /users/{userId}/contacts/{contactId}
+       * @allow (list) An authenticated user lists their own contacts: `auth.uid == 'user_123'`, `list /users/user_123/contacts`
+       * @allow (create) An authenticated user adds a new contact for themselves: `auth.uid == 'user_123'`, `create /users/user_123/contacts/contact_abc`
+       * @deny (get) An authenticated user tries to read a contact belonging to another user: `auth.uid == 'user_123'`, `get /users/user_456/contacts/contact_def`
+       * @deny (list) An anonymous user tries to list contacts: `auth == null`, `list /users/user_123/contacts`
+       * @principle Enforces strict data ownership within a user's private subcollection.
+       */
+      match /contacts/{contactId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasValidContactDataOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isContactDataImmutableOnUpdate();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Manages a user's private list of reminders.
+       * @path /users/{userId}/reminders/{reminderId}
+       * @allow (list) An authenticated user lists their own reminders: `auth.uid == 'user_123'`, `list /users/user_123/reminders`
+       * @allow (create) An authenticated user adds a new reminder for themselves: `auth.uid == 'user_123'`, `create /users/user_123/reminders/reminder_abc`
+       * @deny (get) An authenticated user tries to read a reminder belonging to another user: `auth.uid == 'user_123'`, `get /users/user_456/reminders/reminder_def`
+       * @deny (delete) An authenticated user tries to delete another user's reminder: `auth.uid == 'user_123'`, `delete /users/user_456/reminders/reminder_def`
+       * @principle Enforces strict data ownership within a user's private subcollection.
+       */
+      match /reminders/{reminderId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasValidReminderDataOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isReminderDataImmutableOnUpdate();
+        allow delete: if isExistingOwner(userId);
+
+        /**
+         * @description Manages the delivery history for a specific reminder.
+         * @path /users/{userId}/reminders/{reminderId}/historyLogs/{historyLogId}
+         * @allow (get) An authenticated user reads a history log for one of their own reminders: `auth.uid == 'user_123'`, `get /users/user_123/reminders/rem_abc/historyLogs/log_xyz`
+         * @allow (list) An authenticated user lists all history for one of their own reminders: `auth.uid == 'user_123'`, `list /users/user_123/reminders/rem_abc/historyLogs`
+         * @deny (create) A user tries to create a history log for another user's reminder: `auth.uid == 'user_123'`, `create /users/user_456/reminders/rem_def/historyLogs/log_123`
+         * @deny (list) An anonymous user tries to list history logs: `auth == null`, `list /users/user_123/reminders/rem_abc/historyLogs`
+         * @principle Inherits ownership from the parent document path, ensuring only the user can access their own reminder history.
+         */
+        match /historyLogs/{historyLogId} {
+          allow get: if isOwner(userId);
+          allow list: if isOwner(userId);
+          // Assuming history logs are created by a backend process, client creation is disallowed.
+          // If clients need to create these, the rule should be: `if isOwner(userId);`
+          allow create: if false;
+          // History logs should be immutable records.
+          allow update: if false;
+          allow delete: if false;
+        }
+      }
+    }
+  }
+}
