@@ -185,7 +185,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a channel" />
-                      </Tsligger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="Email">Email</SelectItem>
