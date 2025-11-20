@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -8,6 +9,7 @@ import {
   where,
   getDocs,
   writeBatch,
+  doc,
 } from 'firebase/firestore';
 
 // This component is designed to be invisible and runs in the background.
@@ -21,32 +23,44 @@ export function ReminderProcessor() {
     // Function to check for and process overdue reminders
     const processOverdueReminders = async () => {
       console.log('Checking for overdue reminders...');
-      const now = new Date().toISOString();
       
-      // Query for reminders that are pending and scheduled for a time in the past
+      // Query for reminders that are pending for the current user
       const q = query(
         collection(firestore, 'reminders'),
         where('userId', '==', user.uid),
-        where('status', '==', 'pending'),
-        where('scheduledAt', '<=', now)
+        where('status', '==', 'pending')
       );
 
       try {
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) {
-          console.log('No overdue reminders found.');
+          console.log('No pending reminders found.');
           return;
         }
 
-        // Use a batch to update all found reminders in a single operation
+        const now = new Date();
         const batch = writeBatch(firestore);
-        querySnapshot.forEach((doc) => {
-          console.log(`Processing reminder: ${doc.id}`);
-          batch.update(doc.ref, { status: 'sent' });
+        let overdueCount = 0;
+
+        // Filter for overdue reminders on the client side
+        querySnapshot.forEach((document) => {
+          const reminder = document.data();
+          const scheduledAt = new Date(reminder.scheduledAt);
+
+          if (scheduledAt <= now) {
+            console.log(`Processing reminder: ${document.id}`);
+            const reminderRef = doc(firestore, 'reminders', document.id);
+            batch.update(reminderRef, { status: 'sent' });
+            overdueCount++;
+          }
         });
 
-        await batch.commit();
-        console.log(`Successfully processed ${querySnapshot.size} reminders.`);
+        if (overdueCount > 0) {
+          await batch.commit();
+          console.log(`Successfully processed ${overdueCount} reminders.`);
+        } else {
+          console.log('No overdue reminders to process.');
+        }
 
       } catch (error) {
         console.error('Error processing reminders:', error);
