@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { AddContactDialog } from '../contacts/components/add-contact-dialog';
 import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query } from 'firebase/firestore';
 import { mockHistory } from '@/lib/mock-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Reminder } from '@/lib/types';
@@ -25,13 +25,13 @@ export default function DashboardPage() {
   const firestore = useFirestore();
   
   const contactsQuery = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'contacts'), where('userId', '==', user.uid)) : null,
+    user ? query(collection(firestore, 'contacts')) : null,
     [firestore, user]
   );
   const { data: contacts, isLoading: isLoadingContacts } = useCollection(contactsQuery);
 
   const remindersQuery = useMemoFirebase(() =>
-    user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid)) : null,
+    user ? query(collection(firestore, 'reminders')) : null,
     [firestore, user]
   );
   const { data: reminders, isLoading: isLoadingReminders } = useCollection<Reminder>(remindersQuery);
