@@ -16,11 +16,12 @@ import type { Reminder } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format, formatDistanceToNow } from 'date-fns';
-import { Mail, MessageSquare, MoreHorizontal, Phone, Trash, Edit, Eye } from 'lucide-react';
+import { Mail, MessageSquare, MoreHorizontal, Phone, Trash, Edit, Eye, CheckCircle } from 'lucide-react';
 import React from 'react';
 import { ScheduleReminderDialog } from './schedule-reminder-dialog';
 import { ViewReminderDialog } from './view-reminder-dialog';
 import { CancelReminderDialog } from './cancel-reminder-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const channelIcons = {
   Email: Mail,
@@ -103,10 +104,11 @@ export const columns: ColumnDef<Reminder>[] = [
       const status = row.original.status;
       return (
         <Badge
-          variant={status === 'sent' ? 'secondary' : status === 'pending' ? 'outline' : 'destructive'}
+          variant={status === 'sent' ? 'secondary' : status === 'pending' ? 'outline' : status === 'paid' ? 'default' : 'destructive'}
           className={cn(
-            status === 'sent' && 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-300',
+            status === 'sent' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-300',
             status === 'pending' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300 border-yellow-300',
+            status === 'paid' && 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-300',
           )}
         >
           {status}
@@ -118,6 +120,18 @@ export const columns: ColumnDef<Reminder>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const reminder = row.original;
+      const { toast } = useToast();
+
+      function handleMarkAsPaid() {
+        console.log('Marking reminder as paid:', reminder.id);
+        // Here you would typically update the state or call an API
+        // For now, we'll just show a toast
+        toast({
+          title: 'Payment Recorded',
+          description: `Reminder for ${reminder.contact.name} marked as paid.`,
+        });
+      }
+
       return (
         <div className='flex items-center justify-end'>
           <DropdownMenu>
@@ -137,23 +151,33 @@ export const columns: ColumnDef<Reminder>[] = [
                    </button>
                 </ViewReminderDialog>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <ScheduleReminderDialog reminder={reminder} mode='edit'>
-                  <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                    <Edit />
-                    <span>Edit reminder</span>
-                  </button>
-                </ScheduleReminderDialog>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <CancelReminderDialog reminderId={reminder.id}>
-                    <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-destructive/10 focus:text-destructive data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                        <Trash />
-                        <span>Cancel reminder</span>
+              {(reminder.status === 'pending' || reminder.status === 'sent') && (
+                <DropdownMenuItem onClick={handleMarkAsPaid}>
+                  <CheckCircle />
+                  <span>Mark as paid</span>
+                </DropdownMenuItem>
+              )}
+              {reminder.status === 'pending' && (
+                <DropdownMenuItem asChild>
+                  <ScheduleReminderDialog reminder={reminder} mode='edit'>
+                    <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                      <Edit />
+                      <span>Edit reminder</span>
                     </button>
-                </CancelReminderDialog>
-              </DropdownMenuItem>
+                  </ScheduleReminderDialog>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              {reminder.status === 'pending' && (
+                <DropdownMenuItem asChild>
+                  <CancelReminderDialog reminderId={reminder.id}>
+                      <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-destructive/10 focus:text-destructive data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                          <Trash />
+                          <span>Cancel reminder</span>
+                      </button>
+                  </CancelReminderDialog>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

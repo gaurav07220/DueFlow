@@ -35,16 +35,16 @@ export type Reminder = {
   channel: 'Email' | 'SMS' | 'WhatsApp';
   message: string;
   scheduledAt: Date;
-  status: 'pending' | 'sent' | 'failed';
+  status: 'pending' | 'sent' | 'failed' | 'paid';
 };
 
 export type HistoryLog = {
   id: string;
   reminderId: string;
   contactName: string;
-  channel: 'Email' | 'SMS' | 'WhatsApp';
+  channel: 'Email' | 'SMS' | 'WhatsApp' | 'System';
   sentAt: Date;
-  status: 'delivered' | 'seen' | 'replied' | 'ignored' | 'failed';
+  status: 'delivered' | 'seen' | 'replied' | 'ignored' | 'failed' | 'paid';
   details: string;
 };
 

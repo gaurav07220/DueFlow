@@ -134,7 +134,16 @@ export const mockHistory: HistoryLog[] = [
         sentAt: new Date('2024-07-18T11:00:00Z'),
         status: 'delivered',
         details: 'Email delivered successfully.',
-    }
+    },
+    {
+        id: 'hist-05',
+        reminderId: 'rem-01',
+        contactName: 'John Smith',
+        channel: 'System',
+        sentAt: new Date(),
+        status: 'paid',
+        details: 'Payment marked as received by user.',
+    },
 ]
 
 export const dashboardStats = {
