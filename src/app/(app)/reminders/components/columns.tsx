@@ -16,11 +16,28 @@ import { cn } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Mail, MessageSquare, MoreHorizontal, Phone } from 'lucide-react';
+import React from 'react';
 
 const channelIcons = {
   Email: Mail,
   SMS: MessageSquare,
   WhatsApp: Phone,
+};
+
+const ScheduledAtCell = ({ scheduledAt }: { scheduledAt: Date }) => {
+    const [relativeTime, setRelativeTime] = React.useState('');
+    const isPast = new Date() > scheduledAt;
+  
+    React.useEffect(() => {
+      setRelativeTime(formatDistanceToNow(scheduledAt, { addSuffix: true }));
+    }, [scheduledAt]);
+  
+    return (
+      <div>
+        <div className="font-medium">{format(scheduledAt, 'MMM d, yyyy, p')}</div>
+        {relativeTime && <div className="text-xs text-muted-foreground">{relativeTime}{isPast ? "" : ""}</div>}
+      </div>
+    );
 };
 
 export const columns: ColumnDef<Reminder>[] = [
@@ -67,13 +84,7 @@ export const columns: ColumnDef<Reminder>[] = [
     header: 'Schedule',
     cell: ({ row }) => {
         const scheduledAt = row.original.scheduledAt;
-        const isPast = new Date() > scheduledAt;
-        return (
-            <div>
-                <div className="font-medium">{format(scheduledAt, 'MMM d, yyyy, p')}</div>
-                <div className="text-xs text-muted-foreground">{formatDistanceToNow(scheduledAt, { addSuffix: true })}{isPast ? "" : ""}</div>
-            </div>
-        )
+        return <ScheduledAtCell scheduledAt={scheduledAt} />;
     },
   },
   {
