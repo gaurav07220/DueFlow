@@ -14,11 +14,26 @@ import { RecentReminders } from './components/recent-reminders';
 import { Button } from '@/components/ui/button';
 import { AddContactDialog } from '../contacts/components/add-contact-dialog';
 import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
-import { useUser } from '@/firebase';
-import { mockContacts, mockReminders, mockHistory } from '@/lib/mock-data';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
+import { mockHistory } from '@/lib/mock-data';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
   const { user } = useUser();
+  const firestore = useFirestore();
+  
+  const contactsQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'contacts'), where('userId', '==', user.uid)) : null,
+    [firestore, user]
+  );
+  const { data: contacts, isLoading: isLoadingContacts } = useCollection(contactsQuery);
+
+  const remindersQuery = useMemoFirebase(() =>
+    user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid)) : null,
+    [firestore, user]
+  );
+  const { data: reminders, isLoading: isLoadingReminders } = useCollection(remindersQuery);
   
   const remindersChartData = [
     { name: 'Jan', total: 0 }, { name: 'Feb', total: 0 }, { name: 'Mar', total: 0 },
@@ -27,7 +42,7 @@ export default function DashboardPage() {
     { name: 'Oct', total: 0 }, { name: 'Nov', total: 0 }, { name: 'Dec', total: 0 },
   ];
 
-  mockReminders.forEach(reminder => {
+  reminders?.forEach(reminder => {
     if (reminder.scheduledAt) {
       const date = new Date(reminder.scheduledAt);
       const month = date.getMonth();
@@ -35,6 +50,8 @@ export default function DashboardPage() {
     }
   });
 
+  const upcomingReminders = reminders?.filter(r => r.status === 'pending') || [];
+  const isLoading = isLoadingContacts || isLoadingReminders;
 
   return (
     <div className="space-y-8 animate-in fade-in-0 duration-500">
@@ -70,7 +87,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockContacts.length}</div>
+            {isLoading ? <Skeleton className='h-8 w-1/4' /> : <div className="text-2xl font-bold">{contacts?.length ?? 0}</div>}
             <p className="text-xs text-muted-foreground">All your managed contacts</p>
           </CardContent>
         </Card>
@@ -80,7 +97,7 @@ export default function DashboardPage() {
             <BellRing className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockReminders.length}</div>
+            {isLoading ? <Skeleton className='h-8 w-1/4' /> : <div className="text-2xl font-bold">{reminders?.length ?? 0}</div>}
             <p className="text-xs text-muted-foreground">All reminders scheduled</p>
           </CardContent>
         </Card>
@@ -90,7 +107,7 @@ export default function DashboardPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockReminders.filter(r => r.status === 'pending').length}</div>
+            {isLoading ? <Skeleton className='h-8 w-1/4' /> : <div className="text-2xl font-bold">{upcomingReminders.length}</div>}
             <p className="text-xs text-muted-foreground">Today, tomorrow, overdue</p>
           </CardContent>
         </Card>
@@ -101,7 +118,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">INR {mockHistory.filter(r => r.status === 'paid').length * 100}</div>
-            <p className="text-xs text-muted-foreground">vs INR {mockReminders.filter(r => r.status === 'pending').length * 50} pending</p>
+            <p className="text-xs text-muted-foreground">vs INR {upcomingReminders.length * 50} pending</p>
           </CardContent>
         </Card>
       </div>
@@ -115,7 +132,7 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RemindersChart data={remindersChartData} />
+            {isLoading ? <Skeleton className='h-[350px] w-full' /> : <RemindersChart data={remindersChartData} />}
           </CardContent>
         </Card>
         <Card className="lg:col-span-3">
@@ -126,12 +143,16 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentReminders reminders={mockReminders.filter(r => r.status === 'pending')} />
+            {isLoading ? (
+              <div className='space-y-4'>
+                <Skeleton className='h-12 w-full' />
+                <Skeleton className='h-12 w-full' />
+                <Skeleton className='h-12 w-full' />
+              </div>
+            ) : <RecentReminders reminders={upcomingReminders} />}
           </CardContent>
         </Card>
       </div>
     </div>
   );
 }
-
-    

@@ -6,9 +6,20 @@ import { PlusCircle, Upload } from 'lucide-react';
 import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { AddContactDialog } from './components/add-contact-dialog';
-import { mockContacts } from '@/lib/mock-data';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
 
 export default function ContactsPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const contactsQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'contacts'), where('userId', '==', user.uid)) : null,
+    [firestore, user]
+  );
+  
+  const { data: contacts, isLoading } = useCollection(contactsQuery);
+
   return (
     <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -34,9 +45,7 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      <DataTable columns={columns} data={mockContacts} isLoading={false} />
+      <DataTable columns={columns} data={contacts ?? []} isLoading={isLoading} />
     </div>
   );
 }
-
-    

@@ -32,11 +32,10 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { Reminder } from '@/lib/types';
-import { mockContacts } from '@/lib/mock-data';
-import { useFirestore, useUser } from '@/firebase';
+import type { Contact, Reminder } from '@/lib/types';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { collection } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 
 const formSchema = z.object({
   contactId: z.string({ required_error: 'Please select a contact.' }),
@@ -57,10 +56,14 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   const { toast } = useToast();
   const [internalOpen, setInternalOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const contacts = mockContacts;
-  const isLoadingContacts = false;
   const { user } = useUser();
   const firestore = useFirestore();
+
+  const contactsQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'contacts'), where('userId', '==', user.uid)) : null,
+    [firestore, user]
+  );
+  const { data: contacts, isLoading: isLoadingContacts } = useCollection<Contact>(contactsQuery);
 
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
@@ -99,7 +102,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   }, [reminder, mode, form, open]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if(!user) return;
+    if(!user || !contacts) return;
     setIsSubmitting(true);
 
     const remindersCollection = collection(firestore, 'reminders');
@@ -109,6 +112,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
       const newReminder = {
         ...values,
         userId: user.uid,
+        contactId: selectedContact?.id || '',
         scheduledAt: values.scheduledAt.toISOString(),
         status: 'pending',
         contact: {
