@@ -11,6 +11,7 @@ type SendEmailParams = {
 };
 
 export function sendReminderEmail({ to, name, message, channel }: SendEmailParams) {
+  console.log('--- THIS FUNCTION IS DEPRECATED. EMAIL LOGIC IS NOW HANDLED BY WRITING TO THE `mail` COLLECTION IN FIRESTORE ---');
   console.log('--- SIMULATING SENDING REMINDER ---');
   console.log(`Channel: ${channel}`);
   console.log(`To: ${name} <${to}>`);
@@ -18,12 +19,7 @@ export function sendReminderEmail({ to, name, message, channel }: SendEmailParam
   console.log(`Timestamp: ${new Date().toLocaleString()}`);
   console.log('------------------------------------');
   
-  // In a real implementation, you would make an API call here.
-  // For example:
-  //
-  // await fetch('/api/send-reminder', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ to, name, message, channel }),
-  // });
+  // The new logic in `reminder-processor.tsx` now handles this by writing a document
+  // to the `mail` collection in Firestore, which can be picked up by the 
+  // "Trigger Email" Firebase Extension.
 }

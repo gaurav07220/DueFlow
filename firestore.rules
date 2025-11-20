@@ -18,5 +18,11 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
+
+    // Allow users to create documents in the 'mail' collection to trigger emails.
+    // The documents will be processed and deleted by the Trigger Email extension.
+    match /mail/{mailId} {
+      allow create: if request.auth != null;
+    }
   }
 }
