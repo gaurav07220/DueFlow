@@ -50,11 +50,16 @@ type ScheduleReminderDialogProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-export function ScheduleReminderDialog({ children, reminder, mode = 'add', open, onOpenChange }: ScheduleReminderDialogProps) {
+export function ScheduleReminderDialog({ children, reminder, mode = 'add', open: controlledOpen, onOpenChange: setControlledOpen }: ScheduleReminderDialogProps) {
   const { toast } = useToast();
+  const [internalOpen, setInternalOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const contacts = mockContacts;
   const isLoadingContacts = false;
+
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen;
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,19 +74,24 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
   });
 
   React.useEffect(() => {
-    if (mode === 'edit' && reminder) {
-      form.reset({
-        contactId: reminder.contact.id,
-        channel: reminder.channel,
-        scheduledAt: new Date(reminder.scheduledAt),
-        message: reminder.message,
-      });
-    } else {
-      form.reset({
-        message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
-      });
+    if (open) {
+        if (mode === 'edit' && reminder) {
+        form.reset({
+            contactId: reminder.contact.id,
+            channel: reminder.channel,
+            scheduledAt: new Date(reminder.scheduledAt),
+            message: reminder.message,
+        });
+        } else {
+        form.reset({
+            contactId: undefined,
+            channel: undefined,
+            scheduledAt: undefined,
+            message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
+        });
+        }
     }
-  }, [reminder, mode, form]);
+  }, [reminder, mode, form, open]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -99,13 +109,13 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
         });
       }
       form.reset();
-      onOpenChange?.(false);
+      setOpen(false);
       setIsSubmitting(false);
     }, 1000);
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md w-[90vw] rounded-lg">
         <DialogHeader>
@@ -150,7 +160,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a channel" />
-                      </Trigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="Email">Email</SelectItem>
@@ -199,7 +209,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
                       <div className="p-3 border-t border-border">
                         <Input
                           type="time"
-                          defaultValue={format(field.value || new Date(), 'HH:mm')}
+                          defaultValue={field.value ? format(field.value, 'HH:mm') : format(new Date(), 'HH:mm')}
                           onChange={(e) => {
                             const [hours, minutes] = e.target.value.split(':');
                             const newDate = new Date(field.value || new Date());
@@ -241,5 +251,3 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
     </Dialog>
   );
 }
-
-    
