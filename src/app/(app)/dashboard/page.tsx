@@ -15,7 +15,7 @@ export default function DashboardPage() {
     <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div>
         <h1 className="text-2xl font-headline font-bold tracking-tight">
-          Welcome back, Alex!
+          Welcome back!
         </h1>
         <p className="text-muted-foreground">
           Here's a summary of your follow-up activity.
@@ -23,7 +23,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Reminders</CardTitle>
             <BellRing className="h-4 w-4 text-muted-foreground" />
@@ -33,7 +33,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">All reminders scheduled</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Sent Reminders</CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
@@ -43,7 +43,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">+5 this month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
@@ -53,7 +53,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">Waiting to be sent</p>
           </CardContent>
         </Card>
-        <Card className="bg-primary text-primary-foreground">
+        <Card className="bg-primary text-primary-foreground transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Conversions</CardTitle>
             <LineChart className="h-4 w-4 text-primary-foreground/70" />
@@ -66,7 +66,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="col-span-4 transition-all hover:shadow-lg">
           <CardHeader>
             <CardTitle className='font-headline'>Overview</CardTitle>
           </CardHeader>
@@ -74,7 +74,7 @@ export default function DashboardPage() {
             <RemindersChart data={remindersChartData} />
           </CardContent>
         </Card>
-        <Card className="col-span-4 lg:col-span-3">
+        <Card className="col-span-4 lg:col-span-3 transition-all hover:shadow-lg">
           <CardHeader>
             <CardTitle className='font-headline'>Recent Reminders</CardTitle>
             <CardDescription>
