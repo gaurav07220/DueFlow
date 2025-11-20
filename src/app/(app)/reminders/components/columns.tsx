@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,8 +16,11 @@ import type { Reminder } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format, formatDistanceToNow } from 'date-fns';
-import { Mail, MessageSquare, MoreHorizontal, Phone } from 'lucide-react';
+import { Mail, MessageSquare, MoreHorizontal, Phone, Trash, Edit, Eye } from 'lucide-react';
 import React from 'react';
+import { ScheduleReminderDialog } from './schedule-reminder-dialog';
+import { ViewReminderDialog } from './view-reminder-dialog';
+import { CancelReminderDialog } from './cancel-reminder-dialog';
 
 const channelIcons = {
   Email: Mail,
@@ -111,22 +115,46 @@ export const columns: ColumnDef<Reminder>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
+      const reminder = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Edit reminder</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Cancel reminder</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className='flex items-center justify-end'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <ViewReminderDialog reminder={reminder}>
+                   <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                    <Eye />
+                    <span>View details</span>
+                   </button>
+                </ViewReminderDialog>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <ScheduleReminderDialog reminder={reminder} mode='edit'>
+                  <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                    <Edit />
+                    <span>Edit reminder</span>
+                  </button>
+                </ScheduleReminderDialog>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <CancelReminderDialog reminderId={reminder.id}>
+                    <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-destructive/10 focus:text-destructive data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                        <Trash />
+                        <span>Cancel reminder</span>
+                    </button>
+                </CancelReminderDialog>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   },

@@ -27,15 +27,15 @@ import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Mail, MessageSquare, Phone } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { mockContacts } from '@/lib/mock-data';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useSubscription } from '@/hooks/use-subscription';
 import Link from 'next/link';
+import type { Reminder } from '@/lib/types';
 
 const formSchema = z.object({
   contactId: z.string({ required_error: 'Please select a contact.' }),
@@ -44,17 +44,45 @@ const formSchema = z.object({
   message: z.string().min(10, { message: 'Message must be at least 10 characters.' }),
 });
 
-export function ScheduleReminderDialog({ children }: { children: React.ReactNode }) {
+type ScheduleReminderDialogProps = { 
+  children: React.ReactNode;
+  reminder?: Reminder;
+  mode?: 'add' | 'edit';
+};
+
+
+export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: ScheduleReminderDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const { isPro } = useSubscription();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: mode === 'edit' && reminder ? {
+      contactId: reminder.contact.id,
+      channel: reminder.channel,
+      scheduledAt: reminder.scheduledAt,
+      message: reminder.message,
+    } : {
       message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
     },
   });
+
+  React.useEffect(() => {
+    if (mode === 'edit' && reminder) {
+      form.reset({
+        contactId: reminder.contact.id,
+        channel: reminder.channel,
+        scheduledAt: reminder.scheduledAt,
+        message: reminder.message,
+      });
+    } else {
+      form.reset({
+        message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
+      });
+    }
+  }, [reminder, mode, form]);
+
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!isPro) {
@@ -68,10 +96,12 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
     }
     console.log(values);
     toast({
-      title: 'Reminder Scheduled',
+      title: mode === 'add' ? 'Reminder Scheduled' : 'Reminder Updated',
       description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
     });
-    form.reset();
+    if (mode === 'add') {
+      form.reset();
+    }
     setOpen(false);
   }
 
@@ -80,9 +110,9 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md w-[90vw] rounded-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className='font-headline'>Schedule a Follow-Up</DialogTitle>
+          <DialogTitle className='font-headline'>{mode === 'add' ? 'Schedule a Follow-Up' : 'Edit Reminder'}</DialogTitle>
           <DialogDescription>
-            Set up an automated reminder for your contact.
+            {mode === 'add' ? 'Set up an automated reminder for your contact.' : 'Update the details of your scheduled reminder.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -114,37 +144,20 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
               control={form.control}
               name="channel"
               render={({ field }) => (
-                <FormItem className="space-y-3">
+                <FormItem>
                   <FormLabel>Channel</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="grid grid-cols-3 gap-2 sm:gap-4"
-                    >
-                      <FormItem>
-                        <RadioGroupItem value="Email" id="r-email" className="peer sr-only" />
-                        <FormLabel htmlFor="r-email" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                          <Mail className="mb-2 h-5 w-5 sm:mb-3 sm:h-6 sm:w-6" />
-                          <span className="text-xs sm:text-sm">Email</span>
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem>
-                        <RadioGroupItem value="SMS" id="r-sms" className="peer sr-only" />
-                        <FormLabel htmlFor="r-sms" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                          <MessageSquare className="mb-2 h-5 w-5 sm:mb-3 sm:h-6 sm:w-6" />
-                          <span className="text-xs sm:text-sm">SMS</span>
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem>
-                        <RadioGroupItem value="WhatsApp" id="r-whatsapp" className="peer sr-only" />
-                        <FormLabel htmlFor="r-whatsapp" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-2 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                          <Phone className="mb-2 h-5 w-5 sm:mb-3 sm:h-6 sm:w-6" />
-                          <span className="text-xs sm:text-sm">WhatsApp</span>
-                        </FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a channel" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem value="Email">Email</SelectItem>
+                        <SelectItem value="SMS">SMS</SelectItem>
+                        <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -180,7 +193,7 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
+                        disabled={(date) => date < new Date() && mode === 'add'}
                         initialFocus
                       />
                        <div className="p-3 border-t border-border">
@@ -216,7 +229,7 @@ export function ScheduleReminderDialog({ children }: { children: React.ReactNode
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="w-full">Schedule Reminder</Button>
+              <Button type="submit" className="w-full">{mode === 'add' ? 'Schedule Reminder' : 'Save Changes'}</Button>
             </DialogFooter>
           </form>
         </Form>
