@@ -69,7 +69,7 @@ export const mockReminders: Reminder[] = [
     contact: { id: 'contact-01', name: 'John Smith', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026701d' },
     channel: 'Email',
     message: 'Just following up on our last conversation. Let me know if you have any questions.',
-    scheduledAt: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000), // tomorrow
+    scheduledAt: new Date('2025-11-22T17:00:00Z'), // static date
     status: 'pending',
   },
   {
@@ -77,7 +77,7 @@ export const mockReminders: Reminder[] = [
     contact: { id: 'contact-02', name: 'Jane Doe', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026702d' },
     channel: 'SMS',
     message: 'Hi Jane, hope you are having a great week!',
-    scheduledAt: new Date(), // today
+    scheduledAt: new Date('2025-11-21T12:30:00Z'), // static date
     status: 'pending',
   },
   {
@@ -93,7 +93,7 @@ export const mockReminders: Reminder[] = [
     contact: { id: 'contact-03', name: 'Peter Jones', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026703d' },
     channel: 'Email',
     message: 'Following up on the quote I sent over last week.',
-    scheduledAt: new Date(new Date().getTime() - 5 * 24 * 60 * 60 * 1000), // overdue
+    scheduledAt: new Date('2024-07-15T10:00:00Z'), // overdue
     status: 'pending',
   },
 ];
