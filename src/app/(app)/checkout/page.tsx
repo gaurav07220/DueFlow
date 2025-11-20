@@ -14,7 +14,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const UpiIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className='h-4 w-4 text-muted-foreground'>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className='h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2'>
         <path d="M14.5 9.5L9.5 14.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         <path d="M14.5 14.5L9.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         <path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
                                     <TabsTrigger value="card">Card</TabsTrigger>
                                     <TabsTrigger value="upi">UPI</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="card" className="pt-4">
+                                <TabsContent value="card" className="pt-4 min-h-[170px]">
                                      <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="card-number">Card Number</Label>
@@ -181,7 +181,7 @@ export default function CheckoutPage() {
                                         </div>
                                     </div>
                                 </TabsContent>
-                                <TabsContent value="upi" className="pt-4">
+                                <TabsContent value="upi" className="pt-4 min-h-[170px]">
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="upi-id">UPI ID</Label>

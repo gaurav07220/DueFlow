@@ -9,7 +9,7 @@ import { getInitials } from '@/lib/utils';
 
 export default function ProfilePage() {
   return (
-    <div className="space-y-6 max-w-3xl mx-auto animate-in fade-in-0 duration-500">
+    <div className="space-y-6 animate-in fade-in-0 duration-500">
        <div className="space-y-2">
         <h1 className="text-3xl font-headline font-bold tracking-tight">
           My Profile
