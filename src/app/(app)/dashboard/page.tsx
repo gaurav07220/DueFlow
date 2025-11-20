@@ -79,8 +79,8 @@ export default function DashboardPage() {
             <LineChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{dashboardStats.conversions * 100}</div>
-            <p className="text-xs text-muted-foreground">vs ₹{dashboardStats.pendingReminders * 50} pending</p>
+            <div className="text-2xl font-bold">INR {dashboardStats.conversions * 100}</div>
+            <p className="text-xs text-muted-foreground">vs INR {dashboardStats.pendingReminders * 50} pending</p>
           </CardContent>
         </Card>
       </div>
