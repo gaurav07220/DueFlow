@@ -85,7 +85,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-7">
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle className='font-headline'>Reminders Overview</CardTitle>
