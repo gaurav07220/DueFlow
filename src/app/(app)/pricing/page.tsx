@@ -6,6 +6,7 @@ import { subscriptionPlans } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import React from 'react';
+import Link from 'next/link';
 
 export default function PricingPage() {
   const [selectedPlan, setSelectedPlan] = React.useState('Growth');
@@ -28,7 +29,7 @@ export default function PricingPage() {
             onClick={() => setSelectedPlan(plan.name)}
             className={cn('flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer', selectedPlan === plan.name && 'border-primary ring-2 ring-primary')}
           >
-            <CardHeader className={cn(selectedPlan === plan.name && 'bg-primary/5')}>
+            <CardHeader className={cn(plan.highlighted && 'bg-primary/5')}>
               <CardTitle className='font-headline'>{plan.name}</CardTitle>
               <CardDescription>
                 <span className="text-3xl font-bold text-foreground">{plan.price}</span>
@@ -46,9 +47,11 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" variant={selectedPlan === plan.name ? 'default' : 'outline'}>
-                {plan.cta}
-              </Button>
+                <Button asChild className="w-full" variant={selectedPlan === plan.name ? 'default' : 'outline'}>
+                    <Link href={`/checkout?plan=${plan.name}`}>
+                        {plan.name === 'Free' ? 'Get Started' : `Upgrade to ${plan.name}`}
+                    </Link>
+                </Button>
             </CardFooter>
           </Card>
         ))}

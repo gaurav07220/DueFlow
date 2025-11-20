@@ -48,7 +48,7 @@ export function UserNav() {
           <DropdownMenuItem asChild>
             <Link href="/pricing">
               <CreditCard className="mr-2 h-4 w-4" />
-              <span>Subscription & Billing</span>
+              <span>Subscription</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

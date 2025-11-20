@@ -31,7 +31,7 @@ export const navItems: NavItem[] = [
     icon: History,
   },
   {
-    title: 'Subscription',
+    title: 'Pricing',
     href: '/pricing',
     icon: CreditCard,
   },

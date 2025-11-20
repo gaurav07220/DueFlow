@@ -30,7 +30,7 @@ export function AppHeader() {
           <Package className="h-6 w-6 text-primary" />
           <span className="font-headline text-xl font-bold">FollowPilot</span>
         </Link>
-        {navItems.map((item) => (
+        {navItems.filter(item => !item.hidden).map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -68,7 +68,7 @@ export function AppHeader() {
               <Package className="h-6 w-6 text-primary" />
               <span className="font-headline text-xl font-bold">FollowPilot</span>
             </Link>
-            {navItems.map((item) => (
+            {navItems.filter(item => !item.hidden).map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
