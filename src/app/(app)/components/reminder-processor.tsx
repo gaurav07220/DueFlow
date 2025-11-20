@@ -28,9 +28,9 @@ export function ReminderProcessor() {
     if (!pendingReminders || !contacts || !firestore || !user) return;
 
     const contactsMap = new Map(contacts.map(c => [c.id, c]));
-    const now = new Date();
-
+    
     const processOverdueReminders = async () => {
+      const now = new Date(); // Moved this line inside the function
       for (const reminder of pendingReminders) {
         if (new Date(reminder.scheduledAt) <= now) {
           try {
@@ -53,7 +53,7 @@ export function ReminderProcessor() {
               // SIMULATE sending SMS or WhatsApp. In a real app, this would be a call to a backend function.
               console.log('--- SIMULATING MESSAGE SEND ---');
               console.log(`Channel: ${reminder.channel}`);
-              console.log(`To: ${contact.name} (${contact.phone})`);
+              console.log(`To: ${contact.phone} (${contact.name})`);
               console.log(`Message: "${reminder.message}"`);
               console.log('-----------------------------');
             }
