@@ -24,6 +24,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
+import type { Contact } from '@/lib/types';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -31,19 +32,46 @@ const formSchema = z.object({
   phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
 });
 
-export function AddContactDialog({ children }: { children: React.ReactNode }) {
+export function AddContactDialog({ 
+  children,
+  contact,
+  mode = 'add'
+}: { 
+  children: React.ReactNode,
+  contact?: Contact,
+  mode?: 'add' | 'edit' 
+}) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: mode === 'edit' && contact ? {
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+    } : {
       name: '',
       email: '',
       phone: '',
     },
   });
+
+  React.useEffect(() => {
+    if (open) {
+      form.reset(mode === 'edit' && contact ? {
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+      } : {
+        name: '',
+        email: '',
+        phone: '',
+      });
+    }
+  }, [open, form, mode, contact]);
+
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
@@ -51,10 +79,12 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
     
     setTimeout(() => {
       toast({
-        title: 'Contact Added',
-        description: `${values.name} has been successfully added to your contacts.`,
+        title: mode === 'add' ? 'Contact Added' : 'Contact Updated',
+        description: `${values.name} has been successfully ${mode === 'add' ? 'added' : 'updated'}.`,
       });
-      form.reset();
+      if (mode === 'add') {
+        form.reset();
+      }
       setOpen(false);
       setIsSubmitting(false);
     }, 1000);
@@ -65,9 +95,9 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className='font-headline'>Add New Contact</DialogTitle>          
+          <DialogTitle className='font-headline'>{mode === 'add' ? 'Add New Contact' : 'Edit Contact'}</DialogTitle>          
           <DialogDescription>
-            Enter the details of your new contact below.
+            {mode === 'add' ? 'Enter the details of your new contact below.' : 'Update the contact details.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -112,7 +142,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
               )}
             />
             <DialogFooter>
-              <Button type="submit" loading={isSubmitting}>Save Contact</Button>
+              <Button type="submit" loading={isSubmitting}>{mode === 'add' ? 'Save Contact' : 'Save Changes'}</Button>
             </DialogFooter>
           </form>
         </Form>

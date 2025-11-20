@@ -15,7 +15,10 @@ import type { Contact } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format, formatDistanceToNow } from 'date-fns';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash } from 'lucide-react';
+import React from 'react';
+import { AddContactDialog } from './add-contact-dialog';
+import { DeleteContactDialog } from './delete-contact-dialog';
 
 export const columns: ColumnDef<Contact>[] = [
   {
@@ -92,15 +95,23 @@ export const columns: ColumnDef<Contact>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(contact.id)}
-            >
-              Copy contact ID
+            <DropdownMenuItem asChild>
+               <AddContactDialog contact={contact} mode='edit'>
+                  <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                    <Edit />
+                    <span>Edit contact</span>
+                  </button>
+               </AddContactDialog>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Edit contact</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Delete contact</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <DeleteContactDialog contactId={contact.id}>
+                <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-destructive/10 focus:text-destructive data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                  <Trash />
+                  <span>Delete contact</span>
+                </button>
+              </DeleteContactDialog>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
