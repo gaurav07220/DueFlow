@@ -9,11 +9,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import type { HistoryLog } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import type { ReminderWithContact } from '@/lib/types';
+import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { Eye, Mail, MessageSquare, MoreHorizontal, Phone, CheckCheck, Send, AlertTriangle, CornerDownLeft, CircleDollarSign, Info } from 'lucide-react';
+import { Eye, Mail, MessageSquare, MoreHorizontal, Phone, CheckCheck, Send, AlertTriangle, CornerDownLeft, CircleDollarSign, Info, User } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const channelIcons = {
   Email: Mail,
@@ -22,23 +23,34 @@ const channelIcons = {
   System: Info,
 };
 
-const statusConfig = {
-    delivered: { icon: Send, color: 'text-gray-500', bgColor: 'bg-gray-100', label: 'Delivered' },
-    seen: { icon: Eye, color: 'text-blue-500', bgColor: 'bg-blue-100', label: 'Seen' },
-    replied: { icon: CheckCheck, color: 'text-purple-500', bgColor: 'bg-purple-100', label: 'Replied' },
-    ignored: { icon: CornerDownLeft, color: 'text-orange-500', bgColor: 'bg-orange-100', label: 'Ignored' },
+const statusConfig: Record<string, { icon: React.ElementType, color: string, bgColor: string, label: string }> = {
+    sent: { icon: Send, color: 'text-blue-500', bgColor: 'bg-blue-100', label: 'Sent' },
+    delivered: { icon: CheckCheck, color: 'text-gray-500', bgColor: 'bg-gray-100', label: 'Delivered' },
+    seen: { icon: Eye, color: 'text-purple-500', bgColor: 'bg-purple-100', label: 'Seen' },
+    replied: { icon: CornerDownLeft, color: 'text-indigo-500', bgColor: 'bg-indigo-100', label: 'Replied' },
+    ignored: { icon: AlertTriangle, color: 'text-orange-500', bgColor: 'bg-orange-100', label: 'Ignored' },
     failed: { icon: AlertTriangle, color: 'text-red-500', bgColor: 'bg-red-100', label: 'Failed' },
     paid: { icon: CircleDollarSign, color: 'text-green-500', bgColor: 'bg-green-100', label: 'Paid' },
 };
 
 
-export const columns: ColumnDef<HistoryLog>[] = [
+export const columns: ColumnDef<ReminderWithContact>[] = [
   {
-    accessorKey: 'contactName',
+    accessorKey: 'contact',
     header: 'Contact',
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.contactName}</div>
-    ),
+    cell: ({ row }) => {
+      const contact = row.original.contact;
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9">
+            <AvatarFallback>{getInitials(contact.name)}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="font-medium">{contact.name}</span>
+          </div>
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'channel',
@@ -54,10 +66,10 @@ export const columns: ColumnDef<HistoryLog>[] = [
     },
   },
   {
-    accessorKey: 'sentAt',
+    accessorKey: 'scheduledAt',
     header: 'Date',
     cell: ({ row }) => {
-        const date = new Date(row.original.sentAt);
+        const date = new Date(row.original.scheduledAt);
         return (
             <div className="text-muted-foreground">
                 {format(date, 'MMM d, yyyy, p')}
@@ -75,7 +87,7 @@ export const columns: ColumnDef<HistoryLog>[] = [
       return (
         <Badge
           variant="outline"
-          className={cn('border-0 font-normal', config.bgColor, config.color)}
+          className={cn('border-0 font-normal', config.bgColor, config.color, 'dark:' + config.bgColor + '/50 dark:' + config.color)}
         >
           <config.icon className="mr-1 h-3 w-3" />
           {config.label}
@@ -84,10 +96,10 @@ export const columns: ColumnDef<HistoryLog>[] = [
     },
   },
    {
-    accessorKey: 'details',
+    accessorKey: 'message',
     header: 'Details',
     cell: ({ row }) => (
-        <p className="text-muted-foreground max-w-xs truncate">{row.original.details}</p>
+        <p className="text-muted-foreground max-w-xs truncate">{row.original.message}</p>
     )
   },
   {
@@ -102,7 +114,7 @@ export const columns: ColumnDef<HistoryLog>[] = [
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{row.original.details}</p>
+              <p>{row.original.message}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -110,5 +122,3 @@ export const columns: ColumnDef<HistoryLog>[] = [
     },
   },
 ];
-
-    
