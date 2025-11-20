@@ -8,7 +8,6 @@ import {
   where,
   getDocs,
   writeBatch,
-  Timestamp,
 } from 'firebase/firestore';
 
 // This component is designed to be invisible and runs in the background.
@@ -22,14 +21,14 @@ export function ReminderProcessor() {
     // Function to check for and process overdue reminders
     const processOverdueReminders = async () => {
       console.log('Checking for overdue reminders...');
-      const now = Timestamp.now();
+      const now = new Date().toISOString();
       
       // Query for reminders that are pending and scheduled for a time in the past
       const q = query(
         collection(firestore, 'reminders'),
         where('userId', '==', user.uid),
         where('status', '==', 'pending'),
-        where('scheduledAt', '<=', now.toDate().toISOString())
+        where('scheduledAt', '<=', now)
       );
 
       try {
