@@ -28,14 +28,14 @@ export function ViewReminderDialog({ reminder, children }: ViewReminderDialogPro
     return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[90vw] max-w-md rounded-lg max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-headline">Reminder Details</DialogTitle>
           <DialogDescription>
             Viewing details for the reminder scheduled for {reminder.contact.name}.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1 [-ms-overflow-style:'none'] [scrollbar-width:'none'] [&::-webkit-scrollbar]:hidden pr-4">
             <div className="flex items-start gap-4">
                 <User className="h-5 w-5 text-muted-foreground mt-1" />
                 <div>
@@ -77,7 +77,7 @@ export function ViewReminderDialog({ reminder, children }: ViewReminderDialogPro
                 </div>
             </div>
         </div>
-        <Button onClick={() => setOpen(false)} variant="outline">Close</Button>
+        <Button onClick={() => setOpen(false)} variant="outline" className='mt-4'>Close</Button>
       </DialogContent>
     </Dialog>
   );
