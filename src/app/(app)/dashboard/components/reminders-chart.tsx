@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -26,8 +27,8 @@ export function RemindersChart({ data }: RemindersChartProps) {
           accessibilityLayer 
           data={data}
           margin={{
-            left: -20,
-            right: 20,
+            left: 12,
+            right: 12,
             top: 10,
             bottom: 10,
           }}
