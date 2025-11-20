@@ -27,8 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import type { Contact } from '@/lib/types';
 import { useFirestore, useUser } from '@/firebase';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { collection } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -78,27 +77,40 @@ export function AddContactDialog({
     }
   }, [open, form, mode, contact]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) return;
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user || !firestore) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'User or database not available. Please try again.',
+        });
+        return;
+    }
     
     setIsSubmitting(true);
     
-    const contactsCollection = collection(firestore, 'contacts');
-    
     if (mode === 'add') {
-      const newContact = {
-        ...values,
-        userId: user.uid,
-        createdAt: new Date().toISOString(),
-        lastContacted: new Date().toISOString(),
-        status: 'active',
-        avatarUrl: `https://i.pravatar.cc/150?u=${values.name}`,
-      };
-      addDocumentNonBlocking(contactsCollection, newContact);
-      toast({
-        title: 'Contact Added',
-        description: `${values.name} has been successfully added.`,
-      });
+      try {
+        const contactsCollection = collection(firestore, 'contacts');
+        await addDoc(contactsCollection, {
+            ...values,
+            userId: user.uid,
+            createdAt: new Date().toISOString(),
+            lastContacted: new Date().toISOString(),
+            status: 'active',
+            avatarUrl: `https://i.pravatar.cc/150?u=${values.name}`,
+        });
+        toast({
+            title: 'Contact Added',
+            description: `${values.name} has been successfully added.`,
+        });
+      } catch (error: any) {
+         toast({
+            variant: 'destructive',
+            title: 'Error Adding Contact',
+            description: error.message || 'There was a problem saving your contact.',
+        });
+      }
     } else {
         // Mock update for now
         toast({
