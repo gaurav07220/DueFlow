@@ -7,14 +7,14 @@ import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { AddContactDialog } from './components/add-contact-dialog';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 
 export default function ContactsPage() {
   const { user } = useUser();
   const firestore = useFirestore();
 
   const contactsQuery = useMemoFirebase(() => 
-    user ? query(collection(firestore, 'contacts')) : null,
+    user ? query(collection(firestore, 'contacts'), where('userId', '==', user.uid)) : null,
     [firestore, user]
   );
   

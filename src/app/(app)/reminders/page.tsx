@@ -7,18 +7,19 @@ import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { ScheduleReminderDialog } from './components/schedule-reminder-dialog';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
+import type { Reminder } from '@/lib/types';
 
 export default function RemindersPage() {
   const { user } = useUser();
   const firestore = useFirestore();
 
   const remindersQuery = useMemoFirebase(() =>
-    user ? query(collection(firestore, 'reminders')) : null,
+    user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid)) : null,
     [firestore, user]
   );
   
-  const { data: reminders, isLoading } = useCollection(remindersQuery);
+  const { data: reminders, isLoading } = useCollection<Reminder>(remindersQuery);
 
   return (
     <div className="space-y-6 animate-in fade-in-0 duration-500">
