@@ -34,7 +34,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import type { Contact, Reminder } from '@/lib/types';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { collection, query, where } from 'firebase/firestore';
 
 const formSchema = z.object({
@@ -104,30 +103,13 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
   function onSubmit(values: z.infer<typeof formSchema>) {
     if(!user || !contacts) return;
     setIsSubmitting(true);
-
-    const remindersCollection = collection(firestore, 'reminders');
-    const selectedContact = contacts.find(c => c.id === values.contactId);
     
     if (mode === 'add') {
-      const newReminder = {
-        ...values,
-        userId: user.uid,
-        contactId: selectedContact?.id || '',
-        scheduledAt: values.scheduledAt.toISOString(),
-        status: 'pending',
-        contact: {
-            id: selectedContact?.id || '',
-            name: selectedContact?.name || '',
-            avatarUrl: selectedContact?.avatarUrl || ''
-        }
-      };
-      addDocumentNonBlocking(remindersCollection, newReminder);
       toast({
         title: 'Reminder Scheduled',
-        description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
+        description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}. (Mock)`,
       });
     } else {
-      // Mock update for now
       toast({
         title: 'Reminder Updated',
         description: `The reminder has been updated (mock).`,

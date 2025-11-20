@@ -16,7 +16,7 @@ import { AddContactDialog } from '../contacts/components/add-contact-dialog';
 import { ScheduleReminderDialog } from '../reminders/components/schedule-reminder-dialog';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { mockHistory } from '@/lib/mock-data';
+import { mockHistory, mockReminders } from '@/lib/mock-data';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
@@ -29,11 +29,8 @@ export default function DashboardPage() {
   );
   const { data: contacts, isLoading: isLoadingContacts } = useCollection(contactsQuery);
 
-  const remindersQuery = useMemoFirebase(() =>
-    user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid)) : null,
-    [firestore, user]
-  );
-  const { data: reminders, isLoading: isLoadingReminders } = useCollection(remindersQuery);
+  const reminders = mockReminders;
+  const isLoadingReminders = false;
   
   const remindersChartData = [
     { name: 'Jan', total: 0 }, { name: 'Feb', total: 0 }, { name: 'Mar', total: 0 },
