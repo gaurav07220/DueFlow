@@ -173,18 +173,14 @@
         }
       },
       {
-        "path": "/users/{userId}/contacts/{contactId}",
+        "path": "/contacts/{contactId}",
         "definition": {
           "entityName": "Contact",
           "schema": {
             "$ref": "#/backend/entities/Contact"
           },
-          "description": "Stores contact information for a specific user.",
+          "description": "Stores contact information for all users.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
             {
               "name": "contactId",
               "description": "The unique identifier of the contact."
@@ -193,18 +189,14 @@
         }
       },
       {
-        "path": "/users/{userId}/reminders/{reminderId}",
+        "path": "/reminders/{reminderId}",
         "definition": {
           "entityName": "Reminder",
           "schema": {
             "$ref": "#/backend/entities/Reminder"
           },
-          "description": "Stores reminder information for a specific user.",
+          "description": "Stores reminder information for all users.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
             {
               "name": "reminderId",
               "description": "The unique identifier of the reminder."
@@ -213,22 +205,14 @@
         }
       },
       {
-        "path": "/users/{userId}/reminders/{reminderId}/historyLogs/{historyLogId}",
+        "path": "/historyLogs/{historyLogId}",
         "definition": {
           "entityName": "HistoryLog",
           "schema": {
             "$ref": "#/backend/entities/HistoryLog"
           },
-          "description": "Stores history log information for a specific reminder of a specific user.",
+          "description": "Stores history log information for all reminders.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "reminderId",
-              "description": "The unique identifier of the reminder."
-            },
             {
               "name": "historyLogId",
               "description": "The unique identifier of the history log."
@@ -237,6 +221,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the FollowPilot application.  Path-based ownership is used for user-specific data (Contacts, Reminders, HistoryLogs) under the `/users/{userId}` path.  This avoids hierarchical authorization dependencies and enables atomic operations. The structure supports QAPs by segregating user data, and enforcing strict, semantic naming conventions for increased debuggability.\n\nSpecifically, authorization independence is achieved by ensuring that all data access is controlled via path-based ownership (`/users/{userId}/...`). All collections belonging to a User will be stored under the User's ID, so access is granted by checking the `request.auth.uid` against the `userId` path parameter. This removes the need for `get()` calls in security rules, as the user ID is directly available in the path. This approach aligns with the principle of Authorization Independence, improving security and performance.\n\nThe structure also supports required QAPs via structural segregation. Each user's data is isolated under their respective `/users/{userId}` collection. This ensures that listing contacts, reminders, or history logs is secure, as the rules only need to verify the `request.auth.uid` against the `userId` parameter. This prevents unauthorized access to other users' data, satisfying the QAPs requirement that 'Rules are not Filters'."
+    "reasoning": "The Firestore structure is designed for simplicity during development. It uses top-level collections for users, contacts, reminders, and history logs. This model is easy to understand and query. For production, a nested structure where user-specific data (contacts, reminders) is stored under `/users/{userId}` is recommended for better security and scalability. The current flat structure is a temporary measure to facilitate rapid prototyping as per the immediate debugging requirements."
   }
 }
