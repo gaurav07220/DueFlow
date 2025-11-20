@@ -7,7 +7,7 @@ import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { ScheduleReminderDialog } from './components/schedule-reminder-dialog';
 import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, where } from 'firebase/firestore';
 import type { Reminder } from '@/lib/types';
 
 
@@ -17,7 +17,7 @@ export default function RemindersPage() {
 
   const remindersQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, 'users', user.uid, 'reminders'), orderBy('scheduledAt', 'desc'));
+    return query(collection(firestore, 'reminders'), where('userId', '==', user.uid), orderBy('scheduledAt', 'desc'));
   }, [firestore, user]);
 
   const { data: reminders, isLoading } = useCollection<Reminder>(remindersQuery);

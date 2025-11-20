@@ -30,7 +30,7 @@ export function CancelReminderDialog({ reminderId, children }: CancelReminderDia
 
   function handleCancel() {
     if (!firestore || !user) return;
-    const reminderDocRef = doc(firestore, 'users', user.uid, 'reminders', reminderId);
+    const reminderDocRef = doc(firestore, 'reminders', reminderId);
     
     deleteDocumentNonBlocking(reminderDocRef)
       .then(() => {

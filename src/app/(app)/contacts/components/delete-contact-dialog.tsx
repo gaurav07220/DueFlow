@@ -31,7 +31,7 @@ export function DeleteContactDialog({ contactId, children }: DeleteContactDialog
   function handleDelete() {
     if (!firestore || !user) return;
     
-    const contactDocRef = doc(firestore, 'users', user.uid, 'contacts', contactId);
+    const contactDocRef = doc(firestore, 'contacts', contactId);
     
     deleteDocumentNonBlocking(contactDocRef)
       .then(() => {

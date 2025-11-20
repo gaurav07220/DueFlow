@@ -36,7 +36,7 @@ import { useSubscription } from '@/hooks/use-subscription';
 import Link from 'next/link';
 import type { Reminder, Contact } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase, useUser, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, query, where } from 'firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 
 
@@ -66,7 +66,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
 
   const contactsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, 'users', user.uid, 'contacts');
+    return query(collection(firestore, 'contacts'), where('userId', '==', user.uid));
   }, [firestore, user]);
 
   const { data: contacts, isLoading: isLoadingContacts } = useCollection<Contact>(contactsQuery);
@@ -133,7 +133,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
     };
 
     if (mode === 'add') {
-      const remindersColRef = collection(firestore, 'users', user.uid, 'reminders');
+      const remindersColRef = collection(firestore, 'reminders');
       addDocumentNonBlocking(remindersColRef, reminderData)
         .then(() => {
           toast({
@@ -146,7 +146,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open,
           toast({ variant: 'destructive', title: 'Error', description: err.message });
         }).finally(() => setIsSubmitting(false));
     } else if (reminder) {
-      const reminderDocRef = doc(firestore, 'users', user.uid, 'reminders', reminder.id);
+      const reminderDocRef = doc(firestore, 'reminders', reminder.id);
       updateDocumentNonBlocking(reminderDocRef, reminderData)
         .then(() => {
           toast({

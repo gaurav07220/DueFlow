@@ -7,7 +7,7 @@ import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { AddContactDialog } from './components/add-contact-dialog';
 import { useCollection, useFirebase, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import type { Contact } from '@/lib/types';
 import { useUser } from '@/firebase/provider';
 
@@ -17,7 +17,7 @@ export default function ContactsPage() {
 
   const contactsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, 'users', user.uid, 'contacts');
+    return query(collection(firestore, 'contacts'), where('userId', '==', user.uid));
   }, [firestore, user]);
 
   const { data: contacts, isLoading } = useCollection<Contact>(contactsQuery);

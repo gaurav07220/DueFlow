@@ -131,7 +131,7 @@ export const columns: ColumnDef<Reminder>[] = [
 
       function handleMarkAsPaid() {
         if (!firestore || !user) return;
-        const reminderDocRef = doc(firestore, 'users', user.uid, 'reminders', reminder.id);
+        const reminderDocRef = doc(firestore, 'reminders', reminder.id);
         updateDocumentNonBlocking(reminderDocRef, { status: 'paid' })
           .then(() => {
             toast({

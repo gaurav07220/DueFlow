@@ -24,23 +24,24 @@ export default function DashboardPage() {
 
   const contactsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, 'users', user.uid, 'contacts');
+    return query(collection(firestore, 'contacts'), where('userId', '==', user.uid));
   }, [firestore, user]);
 
   const remindersQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return collection(firestore, 'users', user.uid, 'reminders');
+    return query(collection(firestore, 'reminders'), where('userId', '==', user.uid));
   }, [firestore, user]);
   
   const upcomingRemindersQuery = useMemoFirebase(() => {
-    if (!remindersQuery) return null;
+    if (!firestore || !user) return null;
     return query(
-      remindersQuery, 
+      collection(firestore, 'reminders'), 
+      where('userId', '==', user.uid),
       where('status', '==', 'pending'), 
       orderBy('scheduledAt', 'asc'), 
       limit(5)
     );
-  }, [remindersQuery]);
+  }, [firestore, user]);
 
   const { data: contacts } = useCollection<Contact>(contactsQuery);
   const { data: reminders } = useCollection<Reminder>(remindersQuery);

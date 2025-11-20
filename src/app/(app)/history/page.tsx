@@ -5,7 +5,7 @@ import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { useCollection, useFirebase, useMemoFirebase, useUser } from '@/firebase';
 import type { HistoryLog } from '@/lib/types';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, where } from 'firebase/firestore';
 
 
 export default function HistoryPage() {
@@ -14,11 +14,7 @@ export default function HistoryPage() {
 
   const historyQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    // Note: This assumes a top-level historyLogs collection which might not be ideal.
-    // A better structure would be /users/{userId}/historyLogs
-    // For now, we query all and filter client-side, which is inefficient and insecure.
-    // This should be updated with proper security rules and queries.
-    return query(collection(firestore, 'users', user.uid, 'historyLogs'), orderBy('sentAt', 'desc'));
+    return query(collection(firestore, 'historyLogs'), where('userId', '==', user.uid), orderBy('sentAt', 'desc'));
   }, [firestore, user]);
 
   const { data: history, isLoading } = useCollection<HistoryLog>(historyQuery);

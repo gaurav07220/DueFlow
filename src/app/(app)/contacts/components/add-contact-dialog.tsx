@@ -93,7 +93,7 @@ export function AddContactDialog({
     };
 
     if (mode === 'add') {
-      const contactsColRef = collection(firestore, 'users', user.uid, 'contacts');
+      const contactsColRef = collection(firestore, 'contacts');
       addDocumentNonBlocking(contactsColRef, newContactData)
         .then(() => {
           toast({
@@ -112,7 +112,7 @@ export function AddContactDialog({
         })
         .finally(() => setIsSubmitting(false));
     } else if (contact) {
-      const contactDocRef = doc(firestore, 'users', user.uid, 'contacts', contact.id);
+      const contactDocRef = doc(firestore, 'contacts', contact.id);
       updateDocumentNonBlocking(contactDocRef, values)
         .then(() => {
           toast({
