@@ -18,8 +18,8 @@ export type User = {
 export type Contact = {
   id: string;
   name: string;
-getEmail: () => string;
-  getPhone: () => string;
+  email: string;
+  phone: string;
   status: 'active' | 'inactive';
   lastContacted: Date;
   createdAt: Date;

@@ -31,7 +31,7 @@ export const columns: ColumnDef<Contact>[] = [
           </Avatar>
           <div className="flex flex-col">
             <span className="font-medium">{contact.name}</span>
-            <span className="text-xs text-muted-foreground">{contact.getEmail()}</span>
+            <span className="text-xs text-muted-foreground">{contact.email}</span>
           </div>
         </div>
       );
@@ -40,7 +40,7 @@ export const columns: ColumnDef<Contact>[] = [
   {
     accessorKey: 'phone',
     header: 'Phone',
-    cell: ({ row }) => <div className="text-muted-foreground">{row.original.getPhone()}</div>,
+    cell: ({ row }) => <div className="text-muted-foreground">{row.original.phone}</div>,
   },
   {
     accessorKey: 'status',
