@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -88,7 +89,7 @@ export default function LoginPage() {
         <div className="mx-auto mb-4 flex items-center justify-center rounded-full bg-primary/10 p-4 w-20 h-20">
           <Package className="h-10 w-10 text-primary" />
         </div>
-        <CardTitle className="font-headline text-2xl">Welcome to FollowPilot</CardTitle>
+        <CardTitle className="font-headline text-2xl">Welcome to Nurturely</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <CardContent>

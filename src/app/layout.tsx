@@ -1,10 +1,11 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "FollowPilot",
+  title: "Nurturely",
   description: "Automate your business follow-ups with ease.",
 };
 

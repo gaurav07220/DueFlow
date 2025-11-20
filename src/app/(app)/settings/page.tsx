@@ -36,7 +36,7 @@ export default function SettingsPage() {
         <Card>
             <CardHeader>
                 <CardTitle className='font-headline'>API Integrations</CardTitle>
-                <CardDescription>Connect FollowPilot to your other services.</CardDescription>
+                <CardDescription>Connect Nurturely to your other services.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className='space-y-2'>
