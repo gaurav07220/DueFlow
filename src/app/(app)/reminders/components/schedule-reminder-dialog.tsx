@@ -108,7 +108,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: Sch
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md w-[90vw] rounded-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md w-[90vw] rounded-lg max-h-[90vh] overflow-y-auto [-ms-overflow-style:'none'] [scrollbar-width:'none'] [&::-webkit-scrollbar]:hidden">
         <DialogHeader>
           <DialogTitle className='font-headline'>{mode === 'add' ? 'Schedule a Follow-Up' : 'Edit Reminder'}</DialogTitle>
           <DialogDescription>
