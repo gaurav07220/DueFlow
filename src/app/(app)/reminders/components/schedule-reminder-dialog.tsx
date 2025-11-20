@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -54,6 +53,7 @@ type ScheduleReminderDialogProps = {
 export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: ScheduleReminderDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { isPro } = useSubscription();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -94,15 +94,21 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: Sch
       });
       return;
     }
+    
+    setIsSubmitting(true);
     console.log(values);
-    toast({
-      title: mode === 'add' ? 'Reminder Scheduled' : 'Reminder Updated',
-      description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
-    });
-    if (mode === 'add') {
-      form.reset();
-    }
-    setOpen(false);
+
+    setTimeout(() => {
+      toast({
+        title: mode === 'add' ? 'Reminder Scheduled' : 'Reminder Updated',
+        description: `A reminder has been set for ${format(values.scheduledAt, 'PPP p')}.`,
+      });
+      if (mode === 'add') {
+        form.reset();
+      }
+      setOpen(false);
+      setIsSubmitting(false);
+    }, 1000);
   }
 
   return (
@@ -229,7 +235,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add' }: Sch
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="w-full">{mode === 'add' ? 'Schedule Reminder' : 'Save Changes'}</Button>
+              <Button type="submit" className="w-full" loading={isSubmitting}>{mode === 'add' ? 'Schedule Reminder' : 'Save Changes'}</Button>
             </DialogFooter>
           </form>
         </Form>

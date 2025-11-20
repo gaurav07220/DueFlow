@@ -34,6 +34,7 @@ const formSchema = z.object({
 export function AddContactDialog({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,13 +46,18 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
     console.log(values);
-    toast({
-      title: 'Contact Added',
-      description: `${values.name} has been successfully added to your contacts.`,
-    });
-    form.reset();
-    setOpen(false);
+    
+    setTimeout(() => {
+      toast({
+        title: 'Contact Added',
+        description: `${values.name} has been successfully added to your contacts.`,
+      });
+      form.reset();
+      setOpen(false);
+      setIsSubmitting(false);
+    }, 1000);
   }
 
   return (
@@ -106,7 +112,7 @@ export function AddContactDialog({ children }: { children: React.ReactNode }) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Save Contact</Button>
+              <Button type="submit" loading={isSubmitting}>Save Contact</Button>
             </DialogFooter>
           </form>
         </Form>

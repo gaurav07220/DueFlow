@@ -14,6 +14,8 @@ import {
   useReactTable,
   type ColumnDef,
 } from '@tanstack/react-table';
+import { Skeleton } from '../ui/skeleton';
+import { useEffect, useState } from 'react';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -24,6 +26,15 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500); // Simulate loading delay
+    return () => clearTimeout(timer);
+  }, []);
+
   const table = useReactTable({
     data,
     columns,
@@ -53,7 +64,17 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i} className="transition-colors border-border/50">
+                  {columns.map((column, j) => (
+                    <TableCell key={j} className="whitespace-nowrap">
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

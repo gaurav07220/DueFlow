@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Package } from 'lucide-react';
+import React from 'react';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 48 48" className="size-5">
@@ -47,6 +48,9 @@ const formSchema = z.object({
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = React.useState(false);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,20 +63,28 @@ export default function SignupPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
     console.log(values);
-    toast({
-      title: 'Account Created',
-      description: "Welcome! We're redirecting you to the dashboard...",
-    });
-    router.push('/dashboard');
+    setTimeout(() => {
+      toast({
+        title: 'Account Created',
+        description: "Welcome! We're redirecting you to the dashboard...",
+      });
+      router.push('/dashboard');
+      setIsSubmitting(false);
+    }, 1000);
   }
   
   function onGoogleSignUp() {
+    setIsGoogleSubmitting(true);
     toast({
       title: 'Creating account with Google...',
       description: "You'll be redirected shortly.",
     });
-    router.push('/dashboard');
+     setTimeout(() => {
+      router.push('/dashboard');
+      setIsGoogleSubmitting(false);
+    }, 1000);
   }
 
   return (
@@ -154,13 +166,13 @@ export default function SignupPage() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full font-headline">
+            <Button type="submit" className="w-full font-headline" loading={isSubmitting}>
               Create Account
             </Button>
           </form>
         </Form>
         <Separator className="my-6" />
-        <Button variant="outline" className="w-full font-headline" onClick={onGoogleSignUp}>
+        <Button variant="outline" className="w-full font-headline" onClick={onGoogleSignUp} loading={isGoogleSubmitting}>
           <GoogleIcon />
           <span>Sign up with Google</span>
         </Button>

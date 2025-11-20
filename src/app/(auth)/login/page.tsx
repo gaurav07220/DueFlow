@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Package } from 'lucide-react';
+import React from 'react';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 48 48" className="size-5">
@@ -44,6 +45,9 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = React.useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,22 +57,29 @@ export default function LoginPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // In a real app, you'd call your auth provider here.
+    setIsSubmitting(true);
     console.log(values);
-    toast({
-      title: 'Login Successful',
-      description: "Welcome back! Redirecting you to the dashboard...",
-    });
-    router.push('/dashboard');
+
+    setTimeout(() => {
+      toast({
+        title: 'Login Successful',
+        description: "Welcome back! Redirecting you to the dashboard...",
+      });
+      router.push('/dashboard');
+      setIsSubmitting(false);
+    }, 1000);
   }
 
   function onGoogleSignIn() {
-    // In a real app, you'd trigger the Google Sign-In popup here.
+    setIsGoogleSubmitting(true);
     toast({
       title: 'Signing in with Google...',
       description: "You'll be redirected shortly.",
     });
-    router.push('/dashboard');
+    setTimeout(() => {
+      router.push('/dashboard');
+      setIsGoogleSubmitting(false);
+    }, 1000);
   }
 
   return (
@@ -119,13 +130,13 @@ export default function LoginPage() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full font-headline">
+            <Button type="submit" className="w-full font-headline" loading={isSubmitting}>
               Sign In
             </Button>
           </form>
         </Form>
         <Separator className="my-6" />
-        <Button variant="outline" className="w-full font-headline" onClick={onGoogleSignIn}>
+        <Button variant="outline" className="w-full font-headline" onClick={onGoogleSignIn} loading={isGoogleSubmitting}>
             <GoogleIcon />
             <span>Sign in with Google</span>
         </Button>
