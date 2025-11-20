@@ -162,14 +162,14 @@ export const remindersChartData = [
 export const subscriptionPlans: SubscriptionPlan[] = [
   {
     name: 'Free',
-    price: '$0',
+    price: '₹0',
     pricePeriod: '/ month',
     features: ['10 Reminders/month', 'Basic Analytics', 'Email Support'],
     cta: 'Current Plan',
   },
   {
     name: 'Pro',
-    price: '$29',
+    price: '₹2499',
     pricePeriod: '/ month',
     features: ['500 Reminders/month', 'Advanced Analytics', 'CSV/Excel Import', 'Priority Support'],
     cta: 'Upgrade to Pro',
@@ -177,7 +177,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
   },
   {
     name: 'Enterprise',
-    price: '$99',
+    price: '₹8299',
     pricePeriod: '/ month',
     features: ['Unlimited Reminders', 'Dedicated Account Manager', 'API Access', '24/7 Support'],
     cta: 'Contact Sales',
