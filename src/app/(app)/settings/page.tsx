@@ -63,7 +63,7 @@ export default function SettingsPage() {
             </p>
         </div>
         
-        <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             {/* Preferences Card */}
             <Card>
                 <CardHeader>
@@ -143,7 +143,7 @@ export default function SettingsPage() {
             </Card>
 
             {/* Subscription Card */}
-            <Card>
+            <Card className="lg:col-span-2">
                 <CardHeader>
                     <CardTitle className='font-headline'>Subscription & Billing</CardTitle>
                     <CardDescription>Manage your plan, payment method, and view billing history.</CardDescription>
