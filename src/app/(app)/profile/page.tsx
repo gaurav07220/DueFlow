@@ -11,7 +11,8 @@ import { useAuth, useUser } from '@/firebase';
 import { updateProfile } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { useForm, zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 const profileSchema = z.object({
