@@ -29,6 +29,7 @@ export type Reminder = {
   message: string;
   scheduledAt: string;
   status: 'pending' | 'sent' | 'failed' | 'paid';
+  amount?: number;
 };
 
 export type HistoryLog = {

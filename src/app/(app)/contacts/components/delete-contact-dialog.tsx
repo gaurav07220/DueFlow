@@ -14,6 +14,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import React from 'react';
+import { useFirestore } from '@/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { Button } from '@/components/ui/button';
 
 type DeleteContactDialogProps = {
   contactId: string;
@@ -22,12 +25,29 @@ type DeleteContactDialogProps = {
 
 export function DeleteContactDialog({ contactId, children }: DeleteContactDialogProps) {
   const { toast } = useToast();
+  const firestore = useFirestore();
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
-  function handleDelete() {
-    toast({
-        title: 'Contact Deleted',
-        description: 'The contact has been successfully deleted (mock).',
-    });
+  async function handleDelete() {
+    if (!firestore) return;
+    setIsDeleting(true);
+
+    try {
+        const contactRef = doc(firestore, 'contacts', contactId);
+        await deleteDoc(contactRef);
+        toast({
+            title: 'Contact Deleted',
+            description: 'The contact has been permanently removed.',
+        });
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Error Deleting Contact',
+            description: error.message || 'There was a problem deleting the contact.',
+        });
+    } finally {
+        setIsDeleting(false);
+    }
   }
 
   return (
@@ -44,13 +64,19 @@ export function DeleteContactDialog({ contactId, children }: DeleteContactDialog
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
-            Yes, Delete Contact
+          <AlertDialogAction 
+            asChild
+            onClick={handleDelete} 
+          >
+            <Button
+                loading={isDeleting}
+                className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            >
+             Yes, Delete Contact
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
 }
-
-    

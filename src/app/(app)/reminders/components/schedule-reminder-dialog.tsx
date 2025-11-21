@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, IndianRupee } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,6 +41,7 @@ const formSchema = z.object({
   channel: z.enum(['Email', 'SMS', 'WhatsApp'], { required_error: 'Please select a channel.'}),
   scheduledAt: z.date({ required_error: 'A date and time is required.' }),
   message: z.string().min(10, { message: 'Message must be at least 10 characters.' }),
+  amount: z.coerce.number().optional(),
 });
 
 type ScheduleReminderDialogProps = { 
@@ -75,6 +76,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
       channel: reminder.channel,
       scheduledAt: new Date(reminder.scheduledAt),
       message: reminder.message,
+      amount: reminder.amount || undefined,
     } : {
       message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
     },
@@ -88,6 +90,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
             channel: reminder.channel,
             scheduledAt: new Date(reminder.scheduledAt),
             message: reminder.message,
+            amount: reminder.amount || undefined,
         });
         } else {
         form.reset({
@@ -95,6 +98,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
             channel: undefined,
             scheduledAt: undefined,
             message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
+            amount: undefined,
         });
         }
     }
@@ -112,6 +116,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
           channel: values.channel,
           scheduledAt: values.scheduledAt.toISOString(),
           message: values.message,
+          amount: values.amount || 0,
           status: 'pending' as const,
         };
         await addDoc(collection(firestore, 'reminders'), newReminder);
@@ -124,6 +129,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
         await updateDoc(reminderRef, {
             ...values,
             scheduledAt: values.scheduledAt.toISOString(),
+            amount: values.amount || 0,
         });
         toast({
           title: 'Reminder Updated',
@@ -263,6 +269,23 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
                   <FormControl>
                     <Textarea placeholder="Enter your follow-up message..." className="resize-none" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount (Optional)</FormLabel>
+                  <div className="relative">
+                     <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <FormControl>
+                      <Input type="number" placeholder="0.00" {...field} className="pl-9" />
+                    </FormControl>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

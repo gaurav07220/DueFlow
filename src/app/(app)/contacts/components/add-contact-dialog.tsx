@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import React from 'react';
 import type { Contact } from '@/lib/types';
 import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -89,33 +89,35 @@ export function AddContactDialog({
     
     setIsSubmitting(true);
     
-    if (mode === 'add') {
-      try {
-        const contactsCollection = collection(firestore, 'contacts');
-        await addDoc(contactsCollection, {
-            ...values,
-            userId: user.uid,
-            createdAt: new Date().toISOString(),
-            lastContacted: new Date().toISOString(),
-            status: 'active',
-            avatarUrl: `https://i.pravatar.cc/150?u=${values.name}`,
-        });
+    try {
+        if (mode === 'add') {
+            const contactsCollection = collection(firestore, 'contacts');
+            await addDoc(contactsCollection, {
+                ...values,
+                userId: user.uid,
+                createdAt: new Date().toISOString(),
+                lastContacted: new Date().toISOString(),
+                status: 'active',
+                avatarUrl: `https://i.pravatar.cc/150?u=${values.name}`,
+            });
+            toast({
+                title: 'Contact Added',
+                description: `${values.name} has been successfully added.`,
+            });
+        } else if (mode === 'edit' && contact) {
+            const contactRef = doc(firestore, 'contacts', contact.id);
+            await updateDoc(contactRef, values);
+            toast({
+                title: 'Contact Updated',
+                description: `${values.name}'s information has been successfully updated.`,
+            });
+        }
+    } catch (error: any) {
+        const title = mode === 'add' ? 'Error Adding Contact' : 'Error Updating Contact';
         toast({
-            title: 'Contact Added',
-            description: `${values.name} has been successfully added.`,
-        });
-      } catch (error: any) {
-         toast({
             variant: 'destructive',
-            title: 'Error Adding Contact',
-            description: error.message || 'There was a problem saving your contact.',
-        });
-      }
-    } else {
-        // Mock update for now
-        toast({
-            title: 'Contact Updated',
-            description: `${values.name} has been successfully updated (mock).`,
+            title,
+            description: error.message || `There was a problem saving the contact.`,
         });
     }
     
