@@ -42,10 +42,10 @@ const GoogleIcon = () => (
   );
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
-  phone: z.string().optional(),
+  phoneNumber: z.string().optional(),
   businessName: z.string().optional(),
 });
 
@@ -60,10 +60,10 @@ export default function SignupPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
+      displayName: '',
       email: '',
       password: '',
-      phone: '',
+      phoneNumber: '',
       businessName: '',
     },
   });
@@ -76,15 +76,14 @@ export default function SignupPage() {
       const user = userCredential.user;
       
       // Update auth profile
-      await updateProfile(user, { displayName: values.name, phoneNumber: values.phone });
+      await updateProfile(user, { displayName: values.displayName });
       
       // Create user document in Firestore
       const userRef = doc(firestore, 'users', user.uid);
       await setDoc(userRef, {
-        id: user.uid,
+        displayName: values.displayName,
         email: values.email,
-        displayName: values.name,
-        phoneNumber: values.phone || '',
+        phoneNumber: values.phoneNumber || '',
         businessName: values.businessName || '',
         subscriptionStatus: 'free',
         createdAt: new Date().toISOString(),
@@ -117,9 +116,8 @@ export default function SignupPage() {
       // Create user document in Firestore on first sign-in
       const userRef = doc(firestore, 'users', user.uid);
       await setDoc(userRef, {
-        id: user.uid,
-        email: user.email,
         displayName: user.displayName,
+        email: user.email,
         phoneNumber: user.phoneNumber || '',
         businessName: '',
         subscriptionStatus: 'free',
@@ -157,7 +155,7 @@ export default function SignupPage() {
             <div className="space-y-2">
               <FormField
                 control={form.control}
-                name="name"
+                name="displayName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
@@ -196,7 +194,7 @@ export default function SignupPage() {
               />
               <FormField
                 control={form.control}
-                name="phone"
+                name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Mobile Number (Optional)</FormLabel>
