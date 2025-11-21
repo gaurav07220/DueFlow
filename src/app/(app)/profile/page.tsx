@@ -8,16 +8,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getInitials } from '@/lib/utils';
 import { useAuth, useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { updateProfile } from 'firebase/auth';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { User as UserEntity } from '@/lib/types';
 import { AlertTriangle } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useRouter } from 'next/navigation';
+
 
 const profileSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -25,13 +29,25 @@ const profileSchema = z.object({
   phoneNumber: z.string().optional(),
 });
 
+const passwordSchema = z.object({
+    currentPassword: z.string().min(1, { message: "Please enter your current password." }),
+    newPassword: z.string().min(6, { message: "New password must be at least 6 characters." }),
+    confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "New passwords don't match.",
+    path: ["confirmPassword"],
+});
+
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const firestore = useFirestore();
+  const router = useRouter();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const userDocRef = useMemoFirebase(() => 
     user ? doc(firestore, 'users', user.uid) : null
@@ -39,7 +55,7 @@ export default function ProfilePage() {
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserEntity>(userDocRef);
 
-  const form = useForm<z.infer<typeof profileSchema>>({
+  const profileForm = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
         displayName: '',
@@ -48,20 +64,29 @@ export default function ProfilePage() {
     }
   });
 
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+      resolver: zodResolver(passwordSchema),
+      defaultValues: {
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+      }
+  });
+
   useEffect(() => {
     if (userProfile) {
-        form.reset({
+        profileForm.reset({
             displayName: userProfile.displayName || user?.displayName || '',
             businessName: userProfile.businessName || '',
             phoneNumber: userProfile.phoneNumber || user?.phoneNumber || '',
         });
     } else if (user) {
-        form.reset({
+        profileForm.reset({
             displayName: user.displayName || '',
             phoneNumber: user.phoneNumber || '',
         })
     }
-  }, [userProfile, user, form]);
+  }, [userProfile, user, profileForm]);
   
   const handleUpdateProfile = async (values: z.infer<typeof profileSchema>) => {
     if (!user || !auth.currentUser || !firestore) return;
@@ -99,6 +124,65 @@ export default function ProfilePage() {
         setIsUpdating(false);
     }
   }
+
+  const handleChangePassword = async (values: z.infer<typeof passwordSchema>) => {
+      if (!user || !user.email) return;
+
+      setIsChangingPassword(true);
+      try {
+        const credential = EmailAuthProvider.credential(user.email, values.currentPassword);
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, values.newPassword);
+        
+        toast({
+            title: 'Password Changed',
+            description: 'Your password has been successfully changed.',
+        });
+        passwordForm.reset();
+
+      } catch (error: any) {
+          toast({
+              variant: 'destructive',
+              title: 'Password Change Failed',
+              description: error.code === 'auth/wrong-password' 
+                ? 'The current password you entered is incorrect.' 
+                : error.message,
+          });
+      } finally {
+          setIsChangingPassword(false);
+      }
+  }
+  
+  const handleDeleteAccount = async () => {
+    if (!user || !firestore) return;
+    setIsDeleting(true);
+
+    try {
+        // Delete user's Firestore data first
+        const userRef = doc(firestore, 'users', user.uid);
+        await deleteDoc(userRef);
+
+        // Delete user from Auth
+        await deleteUser(user);
+        
+        toast({
+            title: 'Account Deleted',
+            description: 'Your account has been permanently deleted.',
+        });
+        
+        router.push('/login');
+
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Error Deleting Account',
+            description: 'Please log out and log back in before trying to delete your account. ' + error.message,
+        });
+    } finally {
+        setIsDeleting(false);
+    }
+  };
+
 
   const isLoading = isUserLoading || isProfileLoading;
 
@@ -150,13 +234,13 @@ export default function ProfilePage() {
         </p>
       </div>
       <Card>
+        <form onSubmit={profileForm.handleSubmit(handleUpdateProfile)}>
         <CardHeader>
           <CardTitle className='font-headline'>Profile Details</CardTitle>
           <CardDescription>
             This information will be used for your account.
           </CardDescription>
         </CardHeader>
-        <form onSubmit={form.handleSubmit(handleUpdateProfile)}>
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center gap-4">
             <Avatar className="h-20 w-20">
@@ -166,18 +250,18 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="displayName">Full Name</Label>
-              <Input id="displayName" {...form.register('displayName')} />
-               {form.formState.errors.displayName && <p className='text-sm text-destructive'>{form.formState.errors.displayName.message}</p>}
+              <Input id="displayName" {...profileForm.register('displayName')} />
+               {profileForm.formState.errors.displayName && <p className='text-sm text-destructive'>{profileForm.formState.errors.displayName.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="business-name">Business Name</Label>
-              <Input id="business-name" {...form.register('businessName')} />
+              <Input id="business-name" {...profileForm.register('businessName')} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Mobile Number</Label>
-              <Input id="phone" type="tel" {...form.register('phoneNumber')} />
+              <Input id="phone" type="tel" {...profileForm.register('phoneNumber')} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -192,29 +276,60 @@ export default function ProfilePage() {
       </Card>
 
        <Card>
-        <CardHeader>
-          <CardTitle className='font-headline'>Change Password</CardTitle>
-          <CardDescription>
-            For security, please choose a strong password. (Functionality not implemented)
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="current-password">Current Password</Label>
-            <Input id="current-password" type="password" disabled />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="new-password">New Password</Label>
-            <Input id="new-password" type="password" disabled />
-          </div>
-           <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirm New Password</Label>
-            <Input id="confirm-password" type="password" disabled />
-          </div>
-        </CardContent>
-        <CardFooter className='border-t pt-6'>
-          <Button disabled>Change Password</Button>
-        </CardFooter>
+        <Form {...passwordForm}>
+            <form onSubmit={passwordForm.handleSubmit(handleChangePassword)}>
+                <CardHeader>
+                <CardTitle className='font-headline'>Change Password</CardTitle>
+                <CardDescription>
+                    For security, please choose a strong password.
+                </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <FormField
+                        control={passwordForm.control}
+                        name="currentPassword"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Current Password</FormLabel>
+                                <FormControl>
+                                    <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    <FormField
+                        control={passwordForm.control}
+                        name="newPassword"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>New Password</FormLabel>
+                                <FormControl>
+                                    <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    <FormField
+                        control={passwordForm.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Confirm New Password</FormLabel>
+                                <FormControl>
+                                    <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </CardContent>
+                <CardFooter className='border-t pt-6'>
+                <Button type="submit" loading={isChangingPassword}>Change Password</Button>
+                </CardFooter>
+            </form>
+        </Form>
       </Card>
 
       <Card className="border-destructive">
@@ -233,9 +348,30 @@ export default function ProfilePage() {
             </p>
         </CardContent>
         <CardFooter className='border-t border-destructive/50 pt-6'>
-            <Button variant="destructive" disabled>Delete My Account</Button>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Delete My Account</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your
+                        account and remove all your data from our servers.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction asChild onClick={handleDeleteAccount}>
+                        <Button variant='destructive' loading={isDeleting}>Yes, Delete My Account</Button>
+                    </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </CardFooter>
       </Card>
     </div>
   );
 }
+
+    
