@@ -35,8 +35,8 @@ export function UserNav() {
 
   if (!user) {
     return (
-       <Button asChild variant="outline">
-          <Link href="/login">Sign In</Link>
+       <Button variant="outline" onClick={() => router.push('/login')}>
+          Sign In
        </Button>
     );
   }
