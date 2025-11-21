@@ -163,8 +163,8 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <ScrollArea className='h-[60vh] p-1'>
-            <div className='space-y-4 pr-4'>
+            <ScrollArea className='h-[60vh] pr-4'>
+            <div className='space-y-4'>
             <FormField
               control={form.control}
               name="contactId"
