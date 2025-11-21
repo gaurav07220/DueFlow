@@ -35,6 +35,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { Contact, ReminderWithContact } from '@/lib/types';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, addDoc, doc, updateDoc, where } from 'firebase/firestore';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   contactId: z.string({ required_error: 'Please select a contact.' }),
@@ -161,8 +162,9 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-2 max-h-[70vh] overflow-y-auto [-ms-overflow-style:'none'] [scrollbar-width:'none'] [&::-webkit-scrollbar]:hidden">
-            
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <ScrollArea className='h-[60vh] p-1'>
+            <div className='space-y-4 pr-4'>
             <FormField
               control={form.control}
               name="contactId"
@@ -284,15 +286,16 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
                   <div className="relative">
                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <FormControl>
-                      <Input type="number" placeholder="0.00" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? 0} />
+                      <Input type="number" placeholder="0.00" {...field} className="pl-8" onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? 0} />
                     </FormControl>
                   </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <DialogFooter>
+            </div>
+            </ScrollArea>
+            <DialogFooter className='pt-4 border-t'>
               <Button type="submit" className="w-full" loading={isSubmitting}>
                 {mode === 'add' ? 'Schedule Reminder' : 'Save Changes'}
               </Button>
