@@ -6,11 +6,14 @@ import { columns } from './components/columns';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import type { Reminder, Contact, ReminderWithContact } from '@/lib/types';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 export default function HistoryPage() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   // 1. Fetch all reminders for the user
   const remindersQuery = useMemoFirebase(() =>
@@ -46,6 +49,14 @@ export default function HistoryPage() {
       })
       .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()); // Sort by most recent
   }, [reminders, contacts]);
+
+  const filteredHistory = useMemo(() => {
+    if (!historyLog) return [];
+    return historyLog.filter(item => 
+      item.contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.message.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [historyLog, searchTerm]);
   
   const isLoading = isLoadingReminders || isLoadingContacts;
 
@@ -60,9 +71,18 @@ export default function HistoryPage() {
             A log of all your sent, paid, and failed follow-ups.
           </p>
         </div>
+        <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+                placeholder="Search history..." 
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
       </div>
 
-      <DataTable columns={columns} data={historyLog} isLoading={isLoading}/>
+      <DataTable columns={columns} data={filteredHistory} isLoading={isLoading}/>
     </div>
   );
 }

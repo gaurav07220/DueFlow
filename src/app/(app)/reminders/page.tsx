@@ -2,18 +2,20 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Search } from 'lucide-react';
 import { DataTable } from '@/components/shared/data-table';
 import { columns } from './components/columns';
 import { ScheduleReminderDialog } from './components/schedule-reminder-dialog';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import type { Reminder, Contact, ReminderWithContact } from '@/lib/types';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
+import { Input } from '@/components/ui/input';
 
 export default function RemindersPage() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const remindersQuery = useMemoFirebase(() =>
     user ? query(collection(firestore, 'reminders'), where('userId', '==', user.uid)) : null,
@@ -42,6 +44,14 @@ export default function RemindersPage() {
       };
     });
   }, [reminders, contacts]);
+
+  const filteredReminders = useMemo(() => {
+    if (!remindersWithContacts) return [];
+    return remindersWithContacts.filter(reminder => 
+      reminder.contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reminder.message.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [remindersWithContacts, searchTerm]);
   
   const isLoading = isLoadingReminders || isLoadingContacts;
 
@@ -56,15 +66,26 @@ export default function RemindersPage() {
             Schedule and manage your automated follow-ups.
           </p>
         </div>
-        <ScheduleReminderDialog>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Schedule Reminder
-          </Button>
-        </ScheduleReminderDialog>
+        <div className="flex items-center gap-2">
+            <div className="relative w-full max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Search by contact or message..." 
+                    className="pl-9"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <ScheduleReminderDialog>
+            <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Schedule Reminder
+            </Button>
+            </ScheduleReminderDialog>
+        </div>
       </div>
 
-      <DataTable columns={columns} data={remindersWithContacts ?? []} isLoading={isLoading} />
+      <DataTable columns={columns} data={filteredReminders ?? []} isLoading={isLoading} />
     </div>
   );
 }
