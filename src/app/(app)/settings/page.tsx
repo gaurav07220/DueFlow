@@ -64,8 +64,7 @@ export default function SettingsPage() {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            {/* Preferences Card */}
-            <Card>
+            <Card className="lg:col-span-2">
                 <CardHeader>
                     <CardTitle className='font-headline'>Preferences</CardTitle>
                     <CardDescription>Customize the application's appearance and behavior.</CardDescription>
@@ -113,36 +112,6 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
 
-            {/* Notifications Card */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className='font-headline'>Notifications</CardTitle>
-                    <CardDescription>Choose how you want to be notified.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                     <div className="flex items-center justify-between space-x-2">
-                        <Label htmlFor="email-notifications" className="flex flex-col space-y-1">
-                            <span>Email Notifications</span>
-                            <span className="font-normal text-sm text-muted-foreground">
-                            Receive an email when a reminder is sent or fails.
-                            </span>
-                        </Label>
-                        <Switch id="email-notifications" defaultChecked />
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between space-x-2">
-                        <Label htmlFor="push-notifications" className="flex flex-col space-y-1">
-                            <span>Push Notifications</span>
-                            <span className="font-normal text-sm text-muted-foreground">
-                             Get push notifications on your devices (coming soon).
-                            </span>
-                        </Label>
-                        <Switch id="push-notifications" disabled />
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Subscription Card */}
             <Card className="lg:col-span-2">
                 <CardHeader>
                     <CardTitle className='font-headline'>Subscription & Billing</CardTitle>

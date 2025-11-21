@@ -17,6 +17,7 @@ import * as z from 'zod';
 import { doc, setDoc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { User as UserEntity } from '@/lib/types';
+import { AlertTriangle } from 'lucide-react';
 
 const profileSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -213,6 +214,26 @@ export default function ProfilePage() {
         </CardContent>
         <CardFooter className='border-t pt-6'>
           <Button disabled>Change Password</Button>
+        </CardFooter>
+      </Card>
+
+      <Card className="border-destructive">
+        <CardHeader>
+            <div className='flex items-center gap-2'>
+                 <AlertTriangle className='text-destructive'/>
+                 <CardTitle className='font-headline text-destructive'>Danger Zone</CardTitle>
+            </div>
+            <CardDescription>
+                These actions are permanent and cannot be undone.
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <p className='text-sm text-muted-foreground'>
+                Deleting your account will permanently remove all your data, including contacts, reminders, and settings. This action is irreversible.
+            </p>
+        </CardContent>
+        <CardFooter className='border-t border-destructive/50 pt-6'>
+            <Button variant="destructive" disabled>Delete My Account</Button>
         </CardFooter>
       </Card>
     </div>
