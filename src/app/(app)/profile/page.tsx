@@ -159,7 +159,7 @@ export default function ProfilePage() {
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarFallback>{getInitials(user.displayName || '')}</AvatarFallback>
+              <AvatarFallback>{getInitials(user.displayName || user.email || '')}</AvatarFallback>
             </Avatar>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
