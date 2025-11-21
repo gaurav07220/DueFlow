@@ -76,9 +76,10 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
       channel: reminder.channel,
       scheduledAt: new Date(reminder.scheduledAt),
       message: reminder.message,
-      amount: reminder.amount || undefined,
+      amount: reminder.amount || 0,
     } : {
       message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
+      amount: 0,
     },
   });
 
@@ -90,7 +91,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
             channel: reminder.channel,
             scheduledAt: new Date(reminder.scheduledAt),
             message: reminder.message,
-            amount: reminder.amount || undefined,
+            amount: reminder.amount || 0,
         });
         } else {
         form.reset({
@@ -98,7 +99,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
             channel: undefined,
             scheduledAt: undefined,
             message: 'Hi, just following up on our last conversation. Let me know if you have any questions!',
-            amount: undefined,
+            amount: 0,
         });
         }
     }
@@ -283,7 +284,7 @@ export function ScheduleReminderDialog({ children, reminder, mode = 'add', open:
                   <div className="relative">
                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <FormControl>
-                      <Input type="number" placeholder="0.00" {...field} className="pl-9" />
+                      <Input type="number" placeholder="0.00" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? 0} />
                     </FormControl>
                   </div>
                   <FormMessage />
