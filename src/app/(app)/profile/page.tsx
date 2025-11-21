@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getInitials } from '@/lib/utils';
 import { useAuth, useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser } from 'firebase/auth';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser, updateProfile } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -374,4 +374,5 @@ export default function ProfilePage() {
   );
 }
 
+    
     
