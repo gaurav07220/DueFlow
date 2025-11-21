@@ -53,7 +53,7 @@ export default function SettingsPage() {
     }
 
   return (
-    <div className="space-y-8 animate-in fade-in-0 duration-500 max-w-4xl mx-auto">
+    <div className="space-y-8 animate-in fade-in-0 duration-500">
         <div className="space-y-2">
             <h1 className="text-3xl font-headline font-bold tracking-tight">
             Settings
