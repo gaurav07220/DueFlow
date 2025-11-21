@@ -63,7 +63,7 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto animate-in fade-in-0 duration-500 space-y-6">
+        <div className="animate-in fade-in-0 duration-500 space-y-6">
             <Button variant="ghost" onClick={() => router.back()} className="text-muted-foreground">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -206,5 +206,4 @@ export default function CheckoutPage() {
             </div>
         </div>
     );
-
-    
+}
