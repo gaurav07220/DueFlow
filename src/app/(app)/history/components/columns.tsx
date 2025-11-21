@@ -2,21 +2,14 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import type { ReminderWithContact } from '@/lib/types';
 import { cn, getInitials } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { Eye, Mail, MessageSquare, MoreHorizontal, Phone, CheckCheck, Send, AlertTriangle, CornerDownLeft, CircleDollarSign, Info, User } from 'lucide-react';
+import { Eye, Mail, MessageSquare, Phone, CheckCheck, Send, AlertTriangle, CornerDownLeft, CircleDollarSign, Info } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
-const channelIcons = {
+const channelIcons: Record<string, React.ElementType> = {
   Email: Mail,
   SMS: MessageSquare,
   WhatsApp: Phone,
@@ -99,26 +92,7 @@ export const columns: ColumnDef<ReminderWithContact>[] = [
     accessorKey: 'message',
     header: 'Details',
     cell: ({ row }) => (
-        <p className="text-muted-foreground max-w-xs truncate">{row.original.message}</p>
+        <p className="text-muted-foreground max-w-xs truncate" title={row.original.message}>{row.original.message}</p>
     )
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{row.original.message}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    },
   },
 ];
