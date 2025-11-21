@@ -9,6 +9,16 @@ export type NavItem = {
   hidden?: boolean;
 };
 
+export type User = {
+  id: string;
+  email: string;
+  displayName: string;
+  phoneNumber?: string;
+  businessName?: string;
+  subscriptionStatus: 'free' | 'pro' | 'enterprise';
+  createdAt: string;
+}
+
 export type Contact = {
   id: string;
   userId: string;

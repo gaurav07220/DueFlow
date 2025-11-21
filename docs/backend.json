@@ -19,6 +19,14 @@
           "type": "string",
           "description": "User's display name."
         },
+        "phoneNumber": {
+          "type": "string",
+          "description": "User's phone number."
+        },
+        "businessName": {
+          "type": "string",
+          "description": "User's business name."
+        },
         "subscriptionStatus": {
           "type": "string",
           "description": "The current subscription status of the user (e.g., active, inactive)."

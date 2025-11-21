@@ -28,8 +28,9 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Package } from 'lucide-react';
 import React from 'react';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 48 48" className="size-5">
@@ -51,6 +52,7 @@ const formSchema = z.object({
 export default function SignupPage() {
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = React.useState(false);
@@ -67,12 +69,27 @@ export default function SignupPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!firestore) return;
     setIsSubmitting(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
-      await updateProfile(user, { displayName: values.name });
       
+      // Update auth profile
+      await updateProfile(user, { displayName: values.name, phoneNumber: values.phone });
+      
+      // Create user document in Firestore
+      const userRef = doc(firestore, 'users', user.uid);
+      await setDoc(userRef, {
+        id: user.uid,
+        email: values.email,
+        displayName: values.name,
+        phoneNumber: values.phone || '',
+        businessName: values.businessName || '',
+        subscriptionStatus: 'free',
+        createdAt: new Date().toISOString(),
+      });
+
       toast({
         title: 'Account Created',
         description: "Welcome! We're redirecting you to the dashboard...",
@@ -90,10 +107,24 @@ export default function SignupPage() {
   }
   
   async function onGoogleSignUp() {
+    if (!firestore) return;
     setIsGoogleSubmitting(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Create user document in Firestore on first sign-in
+      const userRef = doc(firestore, 'users', user.uid);
+      await setDoc(userRef, {
+        id: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        phoneNumber: user.phoneNumber || '',
+        businessName: '',
+        subscriptionStatus: 'free',
+        createdAt: new Date().toISOString(),
+      }, { merge: true }); // Merge to avoid overwriting existing data on re-login
       
       toast({
         title: 'Account Created',
@@ -212,5 +243,3 @@ export default function SignupPage() {
     </Card>
   );
 }
-
-    
