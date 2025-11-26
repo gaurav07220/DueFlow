@@ -59,6 +59,7 @@ export type SubscriptionPlan = {
   features: string[];
   cta: string;
   highlighted?: boolean;
+  paymentLink:string
 };
 
 // This type is used for displaying reminders with their contact info joined.

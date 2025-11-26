@@ -1,28 +1,23 @@
 'use client';
 
-import { buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 type PricingButtonProps = {
   planName: string;
   isSelected: boolean;
+  onClick?: () => void;
 };
 
-export function PricingButton({ planName, isSelected }: PricingButtonProps) {
+export function PricingButton({ planName, isSelected, onClick }: PricingButtonProps) {
   const text = planName === 'Free' ? 'Get Started' : `Upgrade to ${planName}`;
   return (
-    <Link
-      href={`/checkout?plan=${planName}`}
-      className={cn(
-        buttonVariants({
-          variant: isSelected ? 'default' : 'outline',
-          size: 'default',
-        }),
-        'w-full'
-      )}
+    <Button
+      onClick={onClick}
+      variant={isSelected ? 'default' : 'outline'}
+      size="default"
+      className="w-full"
     >
       {text}
-    </Link>
+    </Button>
   );
 }

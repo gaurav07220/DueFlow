@@ -6,10 +6,19 @@ import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 import React from 'react';
 import { PricingButton } from './components/pricing-button';
+import { useRouter } from 'next/navigation';
 
 export default function PricingPage() {
   const [selectedPlan, setSelectedPlan] = React.useState('Growth');
+  const router = useRouter();
 
+  const handlePricingClick = (paymentLink: string) => {
+    if (paymentLink) {
+      window.open(paymentLink, '_blank');
+    } else {
+      console.log('No payment link available');
+    }
+  };
   return (
     <div className="space-y-6 animate-in fade-in-0 duration-500">
       <div className="text-center">
@@ -22,9 +31,9 @@ export default function PricingPage() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
-        {subscriptionPlans.map((plan) => (
-          <Card 
-            key={plan.name} 
+        {subscriptionPlans?.map((plan) => (
+          <Card
+            key={plan.name}
             onClick={() => setSelectedPlan(plan.name)}
             className={cn('flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer', selectedPlan === plan.name && 'border-primary ring-2 ring-primary')}
           >
@@ -46,10 +55,11 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-               <PricingButton
-                  planName={plan.name}
-                  isSelected={selectedPlan === plan.name}
-                />
+              <PricingButton
+                planName={plan.name}
+                isSelected={selectedPlan === plan.name}
+                onClick={() => handlePricingClick(plan.paymentLink)}
+              />
             </CardFooter>
           </Card>
         ))}

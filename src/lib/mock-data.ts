@@ -123,6 +123,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       'Basic reporting',
     ],
     cta: 'Get Started',
+    paymentLink:''
   },
   {
     name: 'Growth',
@@ -137,6 +138,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     ],
     cta: 'Upgrade to Growth',
     highlighted: true,
+     paymentLink:'https://dueflow.lemonsqueezy.com/buy/6dc0f65d-0ae3-41cf-b718-16903f379da4'
   },
   {
     name: 'Scale',
@@ -150,20 +152,9 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       'Dedicated account manager',
     ],
     cta: 'Upgrade to Scale',
+     paymentLink:'https://dueflow.lemonsqueezy.com/buy/8ab4d9a2-0079-4e46-98fc-a1b8b9da17fb'
   },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    pricePeriod: '',
-    features: [
-      'All features in Scale',
-      'Custom integrations',
-      'On-premise deployment option',
-      'White-glove onboarding',
-      'SLA guarantees',
-    ],
-    cta: 'Contact Sales',
-  },
+
 ];
 
     
