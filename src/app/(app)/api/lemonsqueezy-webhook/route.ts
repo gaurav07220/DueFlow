@@ -1,41 +1,72 @@
 import { NextResponse } from "next/server";
-import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const event = body?.meta?.event_name;
-    if (!event) return NextResponse.json({ error: "Invalid event" }, { status: 400 });
+    const attrs = body?.data?.attributes;
 
-    const email = body?.data?.attributes?.user_email;
-    const plan = body?.data?.attributes?.product_name; // Growth / Scale / etc
+    const email = attrs?.user_email;
+    const productName = attrs?.product_name; // Scale / Growth
+    const plan = productName?.toLowerCase(); // scale / growth
 
-    if (!email || !plan)
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    // 1) ORDER CREATED → Just acknowledge
+    if (event === "order_created") {
+      return NextResponse.json({ success: true, message: "Order logged" });
+    }
 
-    // Firebase — find user by email
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email));
-    const snapshot = await getDocs(q);
+    // 2) SUBSCRIPTION CREATED → Activate Plan
+    if (event === "subscription_created") {
+      if (!email || !plan)
+        return NextResponse.json({ error: "Missing subscription data" }, { status: 400 });
 
-    if (snapshot.empty)
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      const userRef = doc(db, "users", email);
+      const snap = await getDoc(userRef);
+      if (!snap.exists())
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    const userDoc = snapshot.docs[0];
-    const userRef = doc(db, "users", userDoc.id);
+      await updateDoc(userRef, {
+        subscriptionStatus: plan,
+        subscribedAt: new Date().toISOString(),
+      });
 
-    // Update user subscription
-    await updateDoc(userRef, {
-      subscriptionStatus: plan.toLowerCase(), // growth / scale
-      subscribedAt: new Date().toISOString(),
-    });
+      return NextResponse.json({ success: true, message: "Plan activated" });
+    }
 
-    return NextResponse.json({ message: "Subscription updated" }, { status: 200 });
+    // 3) SUBSCRIPTION UPDATED → Upgrade / Downgrade / Renew
+    if (event === "subscription_updated") {
+      if (!email || !plan)
+        return NextResponse.json({ error: "Missing subscription data" }, { status: 400 });
 
-  } catch (error) {
-    console.error("Webhook error: ", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+      const userRef = doc(db, "users", email);
+      await updateDoc(userRef, {
+        subscriptionStatus: plan,
+        updatedAt: new Date().toISOString(),
+      });
+
+      return NextResponse.json({ success: true, message: "Plan updated" });
+    }
+
+    // 4) SUBSCRIPTION CANCELLED → Switch user to free plan
+    if (event === "subscription_cancelled") {
+      if (!email)
+        return NextResponse.json({ error: "Missing email" }, { status: 400 });
+
+      const userRef = doc(db, "users", email);
+      await updateDoc(userRef, {
+        subscriptionStatus: "free",
+        cancelledAt: new Date().toISOString(),
+      });
+
+      return NextResponse.json({ success: true, message: "Plan cancelled → Free" });
+    }
+
+    return NextResponse.json({ message: "Event ignored" });
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return NextResponse.json({ error: "Webhook failure" }, { status: 500 });
   }
 }
